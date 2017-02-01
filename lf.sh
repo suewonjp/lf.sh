@@ -26,6 +26,14 @@ case "$( uname )" in
 esac
 }
 
+_pbcopy() {
+  [ -n "${BASH_ALIASES[pbcopy]}" ] && $( echo ${BASH_ALIASES[pbcopy]} ) || pbcopy
+}
+
+_pbpaste() {
+  [ -n "${BASH_ALIASES[pbpaste]}" ] && $( echo ${BASH_ALIASES[pbpaste]} ) || pbpaste
+}
+
 ## Join the words with the given delimiter
 ## e.g. _join '*' hello world ==> *hello*world 
 _join() {
@@ -45,7 +53,7 @@ _lf() {
   local IFS=$'\n' basedir= pattern= behavior="${1}"
   shift
 
-  if [ "$#" -eq 1 ]; then
+  if [ "$#" -le 1 ]; then
     ## Only a file pattern is given
     ## The base directory is assumed "."
     basedir=.
@@ -90,6 +98,12 @@ _lf() {
 
 ## List Files Select
 _lfs() {
+  if [ $# -eq 0 ]; then
+    local IFS=$'\n'
+    printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}
+    return
+  fi
+
   local c=${#_LIST_FILE_OUTPUT_CACHE[@]}
   local index=${c}
   case "${1}" in
@@ -100,13 +114,18 @@ _lfs() {
       ;;
     -[0-9]*)
       index=${1:1} ## Strip off the negative sign
-      if [ 0 -lt "${index}" ] && [ "${index}" -lt "${c}" ]; then
+      if [ 1 -le "${index}" ] && [ "${index}" -le "${c}" ]; then
         index=$(( c - index ))
+      else
+        index=${c}
       fi
       ;;
   esac
-  if [ "${2}" = "+" ]; then
-    printf "%s" ${_LIST_FILE_OUTPUT_CACHE[index]} | pbcopy
+  if [ "${index}" -eq "${c}" ]; then
+    return 1
+  elif [ "${2}" = "+" ]; then
+    echo ${_LIST_FILE_OUTPUT_CACHE[index]}
+    echo -n ${_LIST_FILE_OUTPUT_CACHE[index]} | _pbcopy
   else
     echo ${_LIST_FILE_OUTPUT_CACHE[index]}
   fi

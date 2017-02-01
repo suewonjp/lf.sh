@@ -21,15 +21,42 @@ create_test_file_structure() {
   cd "${OLDPWD}"
 }
 
+create_fake_file_list() {
+  _LIST_FILE_OUTPUT_CACHE=( ".config" \
+    ".hidden/baz.lst" \
+    ".hidden/log/error.log" \
+    "app-options.properties" \
+    "database/civilizer.h2.db" \
+    "database/civilizer.TRACE.DB" \
+    "files/empty.txt" \
+    "files/folder 0/empty.txt" \
+    "files/folder 0/folder 2/empty.txt" \
+    "files/folder 0/foo.txt" \
+    "files/folder 1/bar.txt" )
+}
+
+lf() {
+  $( echo ${BASH_ALIASES[lf]} $@ )
+}
+
+lfi() {
+  $( echo ${BASH_ALIASES[lfi]} $@ )
+}
+
+lfs() {
+  $( echo ${BASH_ALIASES[lfs]} $@ )
+}
+
 fixtures() {
   FIXTURE_NAME="fixtures"
   FIXTURE_ROOT="${BATS_TEST_DIRNAME}/${FIXTURE_NAME}"
   RELATIVE_FIXTURE_ROOT="$( bats_trim_filename "${FIXTURE_ROOT}" )"
+  cd "${BATS_TEST_DIRNAME}"
+  shopt -s expand_aliases
+  source "../lf.sh"
 }
 
 setup() {
-  cd "${BATS_TEST_DIRNAME}"
-  source "../lf.sh"
   [ -d "${FIXTURE_ROOT}/${TEST_FS}" ] && cd "${FIXTURE_ROOT}/${TEST_FS}"
   :
 }
