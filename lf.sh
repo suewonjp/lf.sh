@@ -153,8 +153,25 @@ _lff() {
   fi
 }
 
-alias ${_LIST_FILE_CMD:-lf}='_lf path '
-alias ${_LIST_FILE_IGNORE_CASE_CMD:-lfi}='_lf ipath '
+_g() {
+  local IFS=$'\n' behavior=${1} patt=${2}
+  if [ -z "${patt}" ]; then
+    echo "${_LIST_FILE_GREP_CMD:-g} : please, provide pattern to search"
+    return
+  fi
+  shift 2
+  _lf ${behavior} $@ > /dev/null 2>&1
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+  for (( i=0;i<c;++i )); do
+    local match=$( grep ${GREP_OPTIONS--n} -- "${patt}" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ -n "${match}" ] && printf "%s:%s\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" "${match}"
+  done
+}
+
+alias ${_LIST_FILE_CMD:-lf}='_lf path'
+alias ${_LIST_FILE_IGNORECASE_CMD:-lfi}='_lf ipath'
 alias ${_LIST_FILE_SELECT_CMD:-lfs}='_lfs'
 alias ${_LIST_FILE_FILTER_CMD:-lff}='_lff'
+alias ${_LIST_FILE_GREP_CMD:-g}='_g path'
+alias ${_LIST_FILE_GREP_IGNORECASE_CMD:-gi}='_g ipath'
 

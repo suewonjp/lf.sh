@@ -17,6 +17,15 @@ create_test_file_structure() {
       ".hidden/baz.lst" \
       ".hidden/log/error.log" \
       ".config"
+  echo "civilizer.dev=true
+civilizer.message1=hello world!
+civilizer.message2=HELLO WORLD!" > "app-options.properties"
+  echo "foo" > "files/folder 0/foo.txt"
+  echo "bar" > "files/folder 1/bar.txt"
+  echo "baz" > ".hidden/baz.lst"
+  echo "civilizer" > "database/civilizer.h2.db"
+  echo "civilizer" > "database/civilizer.TRACE.DB"
+  echo "Something wrong..." > ".hidden/log/error.log"
 
   cd "${OLDPWD}"
 }
@@ -49,6 +58,14 @@ lfs() {
 
 lff() {
   $( echo ${BASH_ALIASES[lff]} $@ )
+}
+
+g() {
+  $( echo ${BASH_ALIASES[g]} $@ )
+}
+
+gi() {
+  $( echo ${BASH_ALIASES[gi]} $@ )
 }
 
 fixtures() {
