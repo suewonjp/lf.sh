@@ -47,6 +47,10 @@ lfs() {
   $( echo ${BASH_ALIASES[lfs]} $@ )
 }
 
+lff() {
+  $( echo ${BASH_ALIASES[lff]} $@ )
+}
+
 fixtures() {
   FIXTURE_NAME="fixtures"
   FIXTURE_ROOT="${BATS_TEST_DIRNAME}/${FIXTURE_NAME}"

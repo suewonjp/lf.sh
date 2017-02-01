@@ -131,7 +131,30 @@ _lfs() {
   fi
 }
 
+_lff() {
+  if [ $# -eq 0 ]; then
+    _lfs
+    return
+  fi
+  local IFS=$'\n' patt=${1} output=
+
+  output=( $( _lfs | grep --color=never "${patt}" ) )
+
+  if [ "${2}" = "+" ]; then
+    if [ ${#output[*]} -eq 1 ]; then
+      echo ${output[0]}
+      echo -n ${output[0]} | _pbcopy
+    else
+      printf "%s\n" ${output[@]}
+      printf "%s\n" ${output[@]} | _pbcopy
+    fi
+  else
+    printf "%s\n" ${output[@]}
+  fi
+}
+
 alias ${_LIST_FILE_CMD:-lf}='_lf path '
 alias ${_LIST_FILE_IGNORE_CASE_CMD:-lfi}='_lf ipath '
 alias ${_LIST_FILE_SELECT_CMD:-lfs}='_lfs'
+alias ${_LIST_FILE_FILTER_CMD:-lff}='_lff'
 
