@@ -4,7 +4,7 @@ load test_helper
 fixtures
 create_test_file_structure
 
-@test "aliases are recognizable" {
+@test "confirms aliases have been defined" {
   run alias lf
   [ $status -eq 0 ]
 
@@ -12,7 +12,7 @@ create_test_file_structure
   [ $status -eq 0 ]
 }
 
-@test "confirm file structure for testing has been created" {
+@test "confirms the file structure for testing has been created" {
   [ -d "${FIXTURE_ROOT}/${TEST_FS}" ]
 }
 
@@ -26,7 +26,7 @@ create_test_file_structure
   #[ "$output" = '.*hello.*world' ]
 }
 
-@test "list all files" {
+@test "lists all files" {
   run lf
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 11 ]
@@ -58,7 +58,7 @@ create_test_file_structure
   [ "${lines[10]}" = "$PWD/files/folder 1/bar.txt" ]
 }
 
-@test "list files with a file extention" {
+@test "lists files with a file extention" {
   run lf .txt
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 5 ]
@@ -69,7 +69,7 @@ create_test_file_structure
   [ "${lines[4]}" = "files/folder 1/bar.txt" ]
 }
 
-@test "list files with file pattern " {
+@test "lists files with file pattern " {
   run lf empty*
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
@@ -85,7 +85,7 @@ create_test_file_structure
   [ "${lines[2]}" = "$PWD/files/folder 0/folder 2/empty.txt" ]
 }
 
-@test "list files with an intermediate folder and file extention" {
+@test "lists files with an intermediate folder and file extention" {
   run lf database .db
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 1 ]
@@ -102,7 +102,7 @@ create_test_file_structure
   [ "${lines[0]}" = "$PWD/database/civilizer.h2.db" ]
 }
 
-@test "list files with an intermediate folder and file extention (ignore cases)" {
+@test "lists files with an intermediate folder and file extention (ignore cases)" {
   run lfi database .db
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 2 ]
@@ -122,7 +122,7 @@ create_test_file_structure
   [ "${lines[1]}" = "$PWD/database/civilizer.TRACE.DB" ]
 }
 
-@test "list files with intermediate folders" {
+@test "lists files with intermediate folders" {
   run lf files folder --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 4 ]
@@ -140,7 +140,7 @@ create_test_file_structure
   [ "${lines[3]}" = "$PWD/files/folder 1/bar.txt" ]
 }
 
-@test "list files with intermediate folders and file extention" {
+@test "lists files with intermediate folders and file extention" {
   run lf files folder 0 .txt
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
@@ -156,7 +156,7 @@ create_test_file_structure
   [ "${lines[2]}" = "$PWD/files/folder 0/foo.txt" ]
 }
 
-@test "list all dot-prefixed files" {
+@test "lists all dot-prefixed files" {
   run lf . /. --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]

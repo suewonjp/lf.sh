@@ -4,7 +4,7 @@ load test_helper
 fixtures
 create_test_file_structure
 
-@test "aliases are recognizable" {
+@test "confirms aliases have been defined" {
   run alias g
   [ $status -eq 0 ]
 
@@ -12,7 +12,7 @@ create_test_file_structure
   [ $status -eq 0 ]
 }
 
-@test "grep with matching pattern" {
+@test "searches for matching pattern" {
   run g foo .txt
   [ "$output" = "files/folder 0/foo.txt:1:foo" ]
 
@@ -26,12 +26,12 @@ create_test_file_structure
   [ ${#lines[*]} -eq 5 ]
 }
 
-@test "grep with matching pattern (ignore cases of file names)" {
+@test "searches for matching pattern (ignore cases of file names)" {
   run gi "civilizer" .db
   [ ${#lines[*]} -eq 2 ]
 }
 
-@test "grep with non-matching pattern" {
+@test "searches for non-matching pattern" {
   run g FOO file .txt
   [ "$output" = "" ]
 
@@ -39,7 +39,7 @@ create_test_file_structure
   [ "$output" = "" ]
 }
 
-@test "respect GREP_OPTIONS variable" {
+@test "respects GREP_OPTIONS variable" {
   GREP_OPTIONS="-i"
   run gi "hello"
   [ ${#lines[*]} -eq 2 ]

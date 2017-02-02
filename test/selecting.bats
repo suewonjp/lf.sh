@@ -4,7 +4,7 @@ load test_helper
 fixtures
 create_fake_file_list
 
-@test "aliases are recognizable" {
+@test "confirms aliases have been defined" {
   run alias lfs
   [ $status -eq 0 ]
 
@@ -17,11 +17,11 @@ create_fake_file_list
   fi
 }
 
-@test "confirm fake file list for testing has been created" {
+@test "confirms the fake file list for testing has been created" {
   [ ${#_LIST_FILE_OUTPUT_CACHE[*]} -gt 0 ]
 }
 
-@test "list all when no parameter given" {
+@test "lists all when no parameter given" {
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
   run lfs
   [ $status -eq 0 ]
@@ -71,7 +71,7 @@ create_fake_file_list
   [ ${#lines[*]} -eq 0 ]
 }
 
-@test "can copy selected item to system clipboard" {
+@test "copies selected items to the system clipboard" {
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
 
   for ((i=0;i<c;++i)); do
@@ -83,3 +83,4 @@ create_fake_file_list
     [ "$output" = "${_LIST_FILE_OUTPUT_CACHE[i]}" ]
   done
 }
+

@@ -4,23 +4,23 @@ load test_helper
 fixtures
 create_fake_file_list
 
-@test "aliases are recognizable" {
+@test "confirms aliases have been defined" {
   run alias lff
   [ $status -eq 0 ]
 }
 
-@test "confirm fake file list for testing has been created" {
+@test "confirms the fake file list for testing has been created" {
   [ ${#_LIST_FILE_OUTPUT_CACHE[*]} -gt 0 ]
 }
 
-@test "list all when no parameter given" {
+@test "lists all when no parameter given" {
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
   run lff
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq $c ]
 }
 
-@test "filtering with matched pattern" {
+@test "filters with matched pattern" {
   run lff empty
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
@@ -29,13 +29,13 @@ create_fake_file_list
   [ "${lines[2]}" = "files/folder 0/folder 2/empty.txt" ]
 }
 
-@test "filtering with non-matched pattern" {
+@test "filters with non-matched pattern" {
   run lff hello
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 0 ]
 }
 
-@test "can copy filtered item to system clipboard" {
+@test "copies filtered items to the system clipboard" {
   run lff ".db" +
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 1 ]
