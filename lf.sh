@@ -48,10 +48,56 @@ _join() {
   #echo ${result}
 }
 
+## Help Message
+_help_lf() {
+  cat <<'EOF'
+lf  - Quickly type and search files
+lfi - Same as `lf` except that case insensitive matching is performed
+
+### General Usages
+1) lf [file pattern]
+  e.g) lf .txt
+2) lf [base dir] [(optional) intermediate pattern] [file pattern]
+  [base dir] should be a complete path name, not a partial matching pattern
+  Thus, if [base dir] doesn't exist, the search will fail
+  e.g) lf doc .pdf
+  e.g) lf src web home*.js
+  e.g) lf ~/bin .sh
+  e.g) lf /usr/local share .txt
+
+### Special Notations
+1) -- Notation
+  Denotes arbitrary files
+  e.g) lf . src main -- 
+2) + Notation
+  Directs `lf` to list the output as absolute path 
+  e.g) lf + doc .pdf
+     - Will recursively search .pdf files through current working directory so that matching files should contain the pattern `*doc*.pdf`;
+     - The output results will be absolute path
+  e.g) lf +doc .pdf
+     - Will recursively search .pdf files through *$PWD/doc* directory
+     - The output results will be absolute path
+3) .+ Notation
+  Will also search dot folders right under the current working directory (such as .git, .svn, etc)
+  By default, `lf` will exclude these dot folders from its search
+4) +.+ Notation
+  Same as `.+` except that the output results will be absolute path
+
+https://github.com/suewonjp/lf.sh/wiki/lf
+EOF
+}
+
 ## List Files
 _lf() {
   local IFS=$'\n' basedir=. abspathcwd= pattern='*' behavior="${1}" includedots=
   shift
+
+  case  "${1}" in
+    -h|--h|-help|--help|-\?|--\?)
+      _help_lf
+      return
+      ;;
+  esac
 
   if [ "$#" -le 1 ]; then
     if [ "${1}" == '.+' ]; then
@@ -120,8 +166,34 @@ _lf() {
   printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]} 
 }
 
+_help_lfs() {
+  cat <<'EOF'
+lfs  - Select a path from results returned by lf or lfi
+
+1) lfs  
+  Will list all the paths returned by previous call of `lf` or `lfi` 
+2) lfs [index]  
+  Will select a path denoted by [index] from the paths found by previous call of `lf` or `lfi`
+  [index] starts from 0 not 1; Thus `lfs 0` will select the first path from the list
+  [index] can be a negative value
+      e.g) `lfs -1` will select the last path from the list 
+3) lfs [index] +  
+  Same as `lfs [index]` except that the selected path will be copied to the system clipboard
+  This is useful when you want to use that selected path for another application such as a text editor or file explorer, etc.
+
+https://github.com/suewonjp/lf.sh/wiki/lfs
+EOF
+}
+
 ## List Files Select
 _lfs() {
+  case  "${1}" in
+    -h|--h|-help|--help|-\?|--\?)
+      _help_lfs
+      return
+      ;;
+  esac
+
   if [ $# -eq 0 ]; then
     local IFS=$'\n'
     printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}
@@ -155,7 +227,31 @@ _lfs() {
   fi
 }
 
+_help_lff() {
+  cat <<'EOF'
+lff  - Filter results returned by lf or lfi
+
+1) lff  
+  Will list all the paths returned by previous call of `lf` or `lfi` 
+2) lff [pattern]  
+  Will select one or more paths matching [pattern] from the paths found by previous call of `lf` or `lfi`
+  [pattern] is `basic regular expression` used by `grep` command by default.
+3) lff [pattern] +  
+  Same as `lff [pattern]` except that the filtered paths will be copied to the system clipboard
+  This is useful when you want to use that selected path for another application such as a text editor or file explorer, etc.
+
+https://github.com/suewonjp/lf.sh/wiki/lff
+EOF
+}
+
 _lff() {
+  case  "${1}" in
+    -h|--h|-help|--help|-\?|--\?)
+      _help_lff
+      return
+      ;;
+  esac
+
   if [ $# -eq 0 ]; then
     _lfs
     return
@@ -177,10 +273,23 @@ _lff() {
   fi
 }
 
+_help_g() {
+  cat <<'EOF'
+g  - Quickly search text from file
+gi - Same as `g` except that case insensitive matching is performed
+
+1) g [text pattern] [params for lf]
+  All parameters except the 1st parameter obey the rule of lf command (lf -h for details)
+  The 1st parameter [text pattern] is `Basic Regular Expression` (which is used by the regular `grep` command by default) pattern.
+
+https://github.com/suewonjp/lf.sh/wiki/g
+EOF
+}
+
 _g() {
   local IFS=$'\n' behavior=${1} patt=${2}
   if [ -z "${patt}" ]; then
-    echo "${_LIST_FILE_GREP_CMD:-g} : please, provide pattern to search"
+    _help_g
     return
   fi
   shift 2

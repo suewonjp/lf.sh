@@ -26,6 +26,26 @@ create_test_file_structure
   #[ "$output" = '.*hello.*world' ]
 }
 
+@test "prints help messages" {
+  run lf -h
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lf )" ]
+
+  run lf --h
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lf )" ]
+
+  run lf -help
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lf )" ]
+
+  run lf --help
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lf )" ]
+
+  run lf -?
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lf )" ]
+
+  run lf --?
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lf )" ]
+}
+
 @test "lists all files" {
   run lf
   [ $status -eq 0 ]

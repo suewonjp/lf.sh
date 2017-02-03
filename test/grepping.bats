@@ -12,6 +12,11 @@ create_test_file_structure
   [ $status -eq 0 ]
 }
 
+@test "prints help messages" {
+  run g
+  [ $status -eq 0 ] && [ "$output" = "$( _help_g )" ]
+}
+
 @test "searches for matching pattern" {
   run g foo .txt
   [ "$output" = "files/folder 0/foo.txt:1:foo" ]

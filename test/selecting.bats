@@ -21,6 +21,26 @@ create_fake_file_list
   [ ${#_LIST_FILE_OUTPUT_CACHE[*]} -gt 0 ]
 }
 
+@test "prints help messages" {
+  run lfs -h
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
+
+  run lfs --h
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
+
+  run lfs -help
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
+
+  run lfs --help
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
+
+  run lfs -?
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
+
+  run lfs --?
+  [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
+}
+
 @test "lists all when no parameter given" {
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
   run lfs
