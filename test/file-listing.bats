@@ -29,29 +29,63 @@ create_test_file_structure
 @test "lists all files" {
   run lf
   [ $status -eq 0 ]
-  [ ${#lines[*]} -eq 11 ]
-  [ "${lines[0]}" = ".config" ]
-  [ "${lines[10]}" = "files/folder 1/bar.txt" ]
+  [ ${#lines[*]} -eq 8 ]
+  [ "${lines[0]}" = "app-options.properties" ]
+  [ "${lines[7]}" = "files/folder 1/bar.txt" ]
 
   run lf --
   [ $status -eq 0 ]
-  [ ${#lines[*]} -eq 11 ]
-  [ "${lines[0]}" = ".config" ]
-  [ "${lines[10]}" = "files/folder 1/bar.txt" ]
+  [ ${#lines[*]} -eq 8 ]
+  [ "${lines[0]}" = "app-options.properties" ]
+  [ "${lines[7]}" = "files/folder 1/bar.txt" ]
 
   run lf . --
   [ $status -eq 0 ]
-  [ ${#lines[*]} -eq 11 ]
-  [ "${lines[0]}" = ".config" ]
-  [ "${lines[10]}" = "files/folder 1/bar.txt" ]
+  [ ${#lines[*]} -eq 8 ]
+  [ "${lines[0]}" = "app-options.properties" ]
+  [ "${lines[7]}" = "files/folder 1/bar.txt" ]
 
   run lf ./ --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 8 ]
+  [ "${lines[0]}" = "app-options.properties" ]
+  [ "${lines[7]}" = "files/folder 1/bar.txt" ]
+
+  run lf + --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 8 ]
+  [ "${lines[0]}" = "$PWD/app-options.properties" ]
+  [ "${lines[7]}" = "$PWD/files/folder 1/bar.txt" ]
+}
+
+@test "removes trailing duplicate slashes if given" {
+  run lf .// --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 8 ]
+
+  run lf ./// --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 8 ]
+
+  run lf .//// --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 8 ]
+}
+
+@test "lists all files (including dot files)" {
+  run lf .+
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 11 ]
   [ "${lines[0]}" = ".config" ]
   [ "${lines[10]}" = "files/folder 1/bar.txt" ]
 
-  run lf + --
+  run lf .+ --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 11 ]
+  [ "${lines[0]}" = ".config" ]
+  [ "${lines[10]}" = "files/folder 1/bar.txt" ]
+
+  run lf +.+ --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 11 ]
   [ "${lines[0]}" = "$PWD/.config" ]
@@ -156,31 +190,42 @@ create_test_file_structure
   [ "${lines[2]}" = "$PWD/files/folder 0/foo.txt" ]
 }
 
-@test "lists all dot-prefixed files" {
-  run lf . /. --
+@test "lists only dot files" {
+  run lf .+ /. --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
   [ ${lines[0]} = ".config" ]
   [ ${lines[1]} = ".hidden/baz.lst" ]
   [ ${lines[2]} = ".hidden/log/error.log" ]
 
-  run lf . .hidd --
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq 2 ]
-  [ ${lines[0]} = ".hidden/baz.lst" ]
-  [ ${lines[1]} = ".hidden/log/error.log" ]
-
-  run lf + /. --
+  run lf +.+ /. --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
   [ ${lines[0]} = "$PWD/.config" ]
   [ ${lines[1]} = "$PWD/.hidden/baz.lst" ]
   [ ${lines[2]} = "$PWD/.hidden/log/error.log" ]
+}
 
-  run lf + .hidd --
+@test "lists files under a dot directory" {
+  run lf .+ .hidd --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 2 ]
+  [ ${lines[0]} = ".hidden/baz.lst" ]
+  [ ${lines[1]} = ".hidden/log/error.log" ]
+
+  run lf +.+ .hidd --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 2 ]
   [ ${lines[0]} = "$PWD/.hidden/baz.lst" ]
   [ ${lines[1]} = "$PWD/.hidden/log/error.log" ]
-}
 
+  run lf .+ .log
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = ".hidden/log/error.log" ]
+
+  run lf +.+ .log
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "$PWD/.hidden/log/error.log" ]
+}

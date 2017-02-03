@@ -50,25 +50,44 @@ _join() {
 
 ## List Files
 _lf() {
-  local IFS=$'\n' basedir= pattern= behavior="${1}"
+  local IFS=$'\n' basedir=. abspath= pattern='*' behavior="${1}" includedots=
   shift
 
   if [ "$#" -le 1 ]; then
-    ## Only a file pattern is given
-    ## The base directory is assumed "."
-    basedir=.
-    pattern="*${1}"
-    [ "${1}" == '--' ] && pattern='*'
+    if [ "${1}" == '.+' ]; then
+      ## '.+' denotes including dot files/directories
+      includedots=true
+    elif [ "${1}" == '+.+' ]; then
+      ## '+.+' denotes the absolute path for the current working directory
+      ## and including dot files/directories
+      includedots=true
+      abspath=true
+    elif [ "${1}" != '--' ]; then
+      ## Only a file pattern is given
+      pattern="*${1}"
+    fi
   elif [ "$#" -ge 2 ]; then
-    ## The base directory and file patterns are given
-    basedir="${1}"
-    if [ "${1}" == "+" ]; then
-      ## "+" denotes the absolute path for the current working directory
-      basedir="$PWD"
-    elif [ "${1:0:1}" == "+" ]; then
-      ## "+" prefix denotes the absolute path for the given base directory
+    ## The base directory and intermediate directory/file patterns are given
+    if [ "${1}" == '+' ]; then
+      ## '+' denotes the absolute path for the current working directory
+      abspath=true
+    elif [ "${1}" == '.+' ]; then
+      ## '.+' denotes including dot files/directories
+      includedots=true
+    elif [ "${1}" == '+.+' ]; then
+      ## '+.+' denotes the absolute path for the current working directory
+      ## and including dot files/directories
+      includedots=true
+      abspath=true
+    elif [ "${1:0:1}" == '+' ]; then
+      ## '+' prefix denotes the absolute path for the given base directory
       ## e.g. "+src" will expand to $PWD/src
-      basedir="$PWD/${1:1}"
+      basedir="${1:1}"
+      abspath=true
+    else
+      ## Removing trailing '/'s if any
+      basedir=$( echo ${1} | tr -s / )
+      basedir="${basedir%/}"
     fi
 
     if [ "$#" -eq 2 ]; then
@@ -83,14 +102,17 @@ _lf() {
     fi
   fi
 
-  [ "${_LIST_FILE_DEBUG}" = "yes" ] && echo "find ${basedir} -type f -${behavior} ${pattern}"
+  if [ "${includedots}" == "true" ]; then
+    _LIST_FILE_OUTPUT_CACHE=( $( find "${basedir}" -type f -${behavior} "${pattern}" ) )
+  else
+    _LIST_FILE_OUTPUT_CACHE=( $( find "${basedir}" -type f -${behavior} "${pattern}" \! \( -path './.*' \) ) )
+  fi
 
-  _LIST_FILE_OUTPUT_CACHE=( $( find "${basedir}" -type f -${behavior} "${pattern}" ) )
-
-  ## Remove leading "./" or ".//" from each path
+  local prefix=
+  [ "${abspath}" = "true" ] && prefix="$PWD/"
   for (( i=0; i<${#_LIST_FILE_OUTPUT_CACHE[*]}; ++i)); do
-    _LIST_FILE_OUTPUT_CACHE[i]=${_LIST_FILE_OUTPUT_CACHE[i]#.//}
-    _LIST_FILE_OUTPUT_CACHE[i]=${_LIST_FILE_OUTPUT_CACHE[i]#./}
+    ## Remove leading "./" from each path and make it absolute if instructed so
+    _LIST_FILE_OUTPUT_CACHE[i]="${prefix}${_LIST_FILE_OUTPUT_CACHE[i]#./}"
   done
 
   printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]} 
