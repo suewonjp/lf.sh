@@ -50,7 +50,7 @@ _join() {
 
 ## List Files
 _lf() {
-  local IFS=$'\n' basedir=. abspath= pattern='*' behavior="${1}" includedots=
+  local IFS=$'\n' basedir=. abspathcwd= pattern='*' behavior="${1}" includedots=
   shift
 
   if [ "$#" -le 1 ]; then
@@ -61,7 +61,7 @@ _lf() {
       ## '+.+' denotes the absolute path for the current working directory
       ## and including dot files/directories
       includedots=true
-      abspath=true
+      abspathcwd=true
     elif [ "${1}" != '--' ]; then
       ## Only a file pattern is given
       pattern="*${1}"
@@ -70,7 +70,7 @@ _lf() {
     ## The base directory and intermediate directory/file patterns are given
     if [ "${1}" == '+' ]; then
       ## '+' denotes the absolute path for the current working directory
-      abspath=true
+      abspathcwd=true
     elif [ "${1}" == '.+' ]; then
       ## '.+' denotes including dot files/directories
       includedots=true
@@ -78,12 +78,14 @@ _lf() {
       ## '+.+' denotes the absolute path for the current working directory
       ## and including dot files/directories
       includedots=true
-      abspath=true
+      abspathcwd=true
+    elif [ "${1:0:1}" == '/' ]; then
+      basedir=${1}
     elif [ "${1:0:1}" == '+' ]; then
       ## '+' prefix denotes the absolute path for the given base directory
       ## e.g. "+src" will expand to $PWD/src
       basedir="${1:1}"
-      abspath=true
+      abspathcwd=true
     else
       ## Removing trailing '/'s if any
       basedir=$( echo ${1} | tr -s / )
@@ -109,7 +111,7 @@ _lf() {
   fi
 
   local prefix=
-  [ "${abspath}" = "true" ] && prefix="$PWD/"
+  [ "${abspathcwd}" = "true" ] && prefix="$PWD/"
   for (( i=0; i<${#_LIST_FILE_OUTPUT_CACHE[*]}; ++i)); do
     ## Remove leading "./" from each path and make it absolute if instructed so
     _LIST_FILE_OUTPUT_CACHE[i]="${prefix}${_LIST_FILE_OUTPUT_CACHE[i]#./}"

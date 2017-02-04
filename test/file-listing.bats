@@ -229,3 +229,13 @@ create_test_file_structure
   [ ${#lines[*]} -eq 1 ]
   [ "${lines[0]}" = "$PWD/.hidden/log/error.log" ]
 }
+
+@test "lists files with an absolute base path" {
+  run lf "${PWD}" folder 0 .txt
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 3 ]
+  [ "${lines[0]}" = "$PWD/files/folder 0/empty.txt" ]
+  [ "${lines[1]}" = "$PWD/files/folder 0/folder 2/empty.txt" ]
+  [ "${lines[2]}" = "$PWD/files/folder 0/foo.txt" ]
+}
+
