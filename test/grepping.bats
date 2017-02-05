@@ -39,29 +39,36 @@ create_test_file_structure
   [ "$output" = "" ]
 }
 
-@test "respects GREP_OPTIONS variable" {
-  GREP_OPTIONS="-i"
+@test "respects _LIST_FILE_GREP_OPTIONS variable" {
+  _LIST_FILE_GREP_OPTIONS="-i"
   run gi "hello"
   [ ${#lines[*]} -eq 2 ]
   [ "${lines[0]}" = "app-options.properties:civilizer.message1=hello world!" ]
   [ "${lines[1]}" = "civilizer.message2=HELLO WORLD!" ]
 
-  GREP_OPTIONS=""
+  _LIST_FILE_GREP_OPTIONS=""
   run gi "hello"
   [ ${#lines[*]} -eq 1 ]
   [ "${lines[0]}" = "app-options.properties:civilizer.message1=hello world!" ]
 
-  GREP_OPTIONS=''
+  _LIST_FILE_GREP_OPTIONS=''
   run gi "hello"
   [ ${#lines[*]} -eq 1 ]
   [ "${lines[0]}" = "app-options.properties:civilizer.message1=hello world!" ]
 
-  GREP_OPTIONS=
+  _LIST_FILE_GREP_OPTIONS=
   run gi "hello"
   [ ${#lines[*]} -eq 1 ]
   [ "${lines[0]}" = "app-options.properties:civilizer.message1=hello world!" ]
 
-  unset GREP_OPTIONS
+  unset _LIST_FILE_GREP_OPTIONS
+  run gi "hello"
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "app-options.properties:2:civilizer.message1=hello world!" ]
+}
+
+@test "ignores GREP_OPTIONS variable" {
+  GREP_OPTIONS="-i"
   run gi "hello"
   [ ${#lines[*]} -eq 1 ]
   [ "${lines[0]}" = "app-options.properties:2:civilizer.message1=hello world!" ]

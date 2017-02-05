@@ -185,9 +185,9 @@ _g() {
   fi
   shift 2
   _lf ${behavior} $@ > /dev/null 2>&1
-  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]} GREP_OPTIONS=
   for (( i=0;i<c;++i )); do
-    local match=$( grep ${GREP_OPTIONS--n} -- "${patt}" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    local match=$( grep ${_LIST_FILE_GREP_OPTIONS--n} -- "${patt}" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
     [ -n "${match}" ] && printf "%s:%s\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" "${match}"
   done
 }
