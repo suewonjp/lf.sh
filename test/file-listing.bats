@@ -50,30 +50,35 @@ create_test_file_structure
   run lf
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 8 ]
+  sort_array lines
   [ "${lines[0]}" = "app-options.properties" ]
   [ "${lines[7]}" = "files/folder 1/bar.txt" ]
 
   run lf --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 8 ]
+  sort_array lines
   [ "${lines[0]}" = "app-options.properties" ]
   [ "${lines[7]}" = "files/folder 1/bar.txt" ]
 
   run lf . --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 8 ]
+  sort_array lines
   [ "${lines[0]}" = "app-options.properties" ]
   [ "${lines[7]}" = "files/folder 1/bar.txt" ]
 
   run lf ./ --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 8 ]
+  sort_array lines
   [ "${lines[0]}" = "app-options.properties" ]
   [ "${lines[7]}" = "files/folder 1/bar.txt" ]
 
   run lf + --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 8 ]
+  sort_array lines
   [ "${lines[0]}" = "$PWD/app-options.properties" ]
   [ "${lines[7]}" = "$PWD/files/folder 1/bar.txt" ]
 }
@@ -96,47 +101,53 @@ create_test_file_structure
   run lf .+
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 11 ]
-  [ "${lines[0]}" = ".config" ]
-  [ "${lines[10]}" = "files/folder 1/bar.txt" ]
+  sort_array lines
+  [ "${lines[9]}" = ".hidden/baz.lst" ]
+  [ "${lines[10]}" = ".hidden/log/error.log" ]
 
   run lf .+ --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 11 ]
-  [ "${lines[0]}" = ".config" ]
-  [ "${lines[10]}" = "files/folder 1/bar.txt" ]
+  sort_array lines
+  [ "${lines[9]}" = ".hidden/baz.lst" ]
+  [ "${lines[10]}" = ".hidden/log/error.log" ]
 
   run lf +.+ --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 11 ]
-  [ "${lines[0]}" = "$PWD/.config" ]
-  [ "${lines[10]}" = "$PWD/files/folder 1/bar.txt" ]
+  sort_array lines
+  [ "${lines[9]}" = "${PWD}/.hidden/baz.lst" ]
+  [ "${lines[10]}" = "${PWD}/.hidden/log/error.log" ]
 }
 
 @test "lists files with a file extention" {
+  local regex=".txt$"
   run lf .txt
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 5 ]
-  [ "${lines[0]}" = "files/empty.txt" ]
-  [ "${lines[1]}" = "files/folder 0/empty.txt" ]
-  [ "${lines[2]}" = "files/folder 0/folder 2/empty.txt" ]
-  [ "${lines[3]}" = "files/folder 0/foo.txt" ]
-  [ "${lines[4]}" = "files/folder 1/bar.txt" ]
+  [[ "${lines[0]}" =~ $regex ]]
+  [[ "${lines[1]}" =~ $regex ]]
+  [[ "${lines[2]}" =~ $regex ]]
+  [[ "${lines[3]}" =~ $regex ]]
+  [[ "${lines[4]}" =~ $regex ]]
 }
 
 @test "lists files with file pattern " {
+  local regex="empty.txt$"
   run lf empty*
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
-  [ "${lines[0]}" = "files/empty.txt" ]
-  [ "${lines[1]}" = "files/folder 0/empty.txt" ]
-  [ "${lines[2]}" = "files/folder 0/folder 2/empty.txt" ]
+  [[ "${lines[0]}" =~ $regex ]]
+  [[ "${lines[1]}" =~ $regex ]]
+  [[ "${lines[2]}" =~ $regex ]]
 
   run lf + empty*
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
-  [ "${lines[0]}" = "$PWD/files/empty.txt" ]
-  [ "${lines[1]}" = "$PWD/files/folder 0/empty.txt" ]
-  [ "${lines[2]}" = "$PWD/files/folder 0/folder 2/empty.txt" ]
+  [[ "${lines[0]}" =~ $regex ]]
+  [[ "${lines[1]}" =~ $regex ]]
+  [[ "${lines[2]}" =~ $regex ]]
+  sort_array
 }
 
 @test "lists files with an intermediate folder and file extention" {
@@ -157,29 +168,32 @@ create_test_file_structure
 }
 
 @test "lists files with an intermediate folder and file extention (ignore cases)" {
+  local regex=database.*.\(db\|DB\)$
   run lfi database .db
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 2 ]
-  [ "${lines[0]}" = "database/civilizer.h2.db" ]
-  [ "${lines[1]}" = "database/civilizer.TRACE.DB" ]
+  [[ "${lines[0]}" =~ $regex ]]
+  [[ "${lines[1]}" =~ $regex ]]
 
+  regex=${PWD}/database.*.\(db\|DB\)$
   run lfi + database .db
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 2 ]
-  [ "${lines[0]}" = "$PWD/database/civilizer.h2.db" ]
-  [ "${lines[1]}" = "$PWD/database/civilizer.TRACE.DB" ]
+  [[ "${lines[0]}" =~ $regex ]]
+  [[ "${lines[1]}" =~ $regex ]]
 
   run lfi +database .db
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 2 ]
-  [ "${lines[0]}" = "$PWD/database/civilizer.h2.db" ]
-  [ "${lines[1]}" = "$PWD/database/civilizer.TRACE.DB" ]
+  [[ "${lines[0]}" =~ $regex ]]
+  [[ "${lines[1]}" =~ $regex ]]
 }
 
 @test "lists files with intermediate folders" {
   run lf files folder --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 4 ]
+  sort_array lines
   [ "${lines[0]}" = "files/folder 0/empty.txt" ]
   [ "${lines[1]}" = "files/folder 0/folder 2/empty.txt" ]
   [ "${lines[2]}" = "files/folder 0/foo.txt" ]
@@ -188,6 +202,7 @@ create_test_file_structure
   run lf + files folder --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 4 ]
+  sort_array lines
   [ "${lines[0]}" = "$PWD/files/folder 0/empty.txt" ]
   [ "${lines[1]}" = "$PWD/files/folder 0/folder 2/empty.txt" ]
   [ "${lines[2]}" = "$PWD/files/folder 0/foo.txt" ]
@@ -198,6 +213,7 @@ create_test_file_structure
   run lf files folder 0 .txt
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
+  sort_array lines
   [ "${lines[0]}" = "files/folder 0/empty.txt" ]
   [ "${lines[1]}" = "files/folder 0/folder 2/empty.txt" ]
   [ "${lines[2]}" = "files/folder 0/foo.txt" ]
@@ -205,6 +221,7 @@ create_test_file_structure
   run lf + files folder 0 .txt
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
+  sort_array lines
   [ "${lines[0]}" = "$PWD/files/folder 0/empty.txt" ]
   [ "${lines[1]}" = "$PWD/files/folder 0/folder 2/empty.txt" ]
   [ "${lines[2]}" = "$PWD/files/folder 0/foo.txt" ]
@@ -214,6 +231,7 @@ create_test_file_structure
   run lf .+ /. --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
+  sort_array lines
   [ ${lines[0]} = ".config" ]
   [ ${lines[1]} = ".hidden/baz.lst" ]
   [ ${lines[2]} = ".hidden/log/error.log" ]
@@ -221,6 +239,7 @@ create_test_file_structure
   run lf +.+ /. --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
+  sort_array lines
   [ ${lines[0]} = "$PWD/.config" ]
   [ ${lines[1]} = "$PWD/.hidden/baz.lst" ]
   [ ${lines[2]} = "$PWD/.hidden/log/error.log" ]
@@ -230,12 +249,14 @@ create_test_file_structure
   run lf .+ .hidd --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 2 ]
+  sort_array lines
   [ ${lines[0]} = ".hidden/baz.lst" ]
   [ ${lines[1]} = ".hidden/log/error.log" ]
 
   run lf +.+ .hidd --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 2 ]
+  sort_array lines
   [ ${lines[0]} = "$PWD/.hidden/baz.lst" ]
   [ ${lines[1]} = "$PWD/.hidden/log/error.log" ]
 
@@ -254,6 +275,7 @@ create_test_file_structure
   run lf "${PWD}" folder 0 .txt
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
+  sort_array lines
   [ "${lines[0]}" = "$PWD/files/folder 0/empty.txt" ]
   [ "${lines[1]}" = "$PWD/files/folder 0/folder 2/empty.txt" ]
   [ "${lines[2]}" = "$PWD/files/folder 0/foo.txt" ]

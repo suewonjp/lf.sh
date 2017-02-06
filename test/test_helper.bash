@@ -44,6 +44,20 @@ create_fake_file_list() {
     "files/folder 1/bar.txt" )
 }
 
+sort_array() {
+  if [ -n "$1" ]; then
+    local IFS=$'\n'
+    eval "local arr=( \${$1[*]} )"
+    arr=( $( sort -d <<<"${arr[*]}" ) )
+    eval "$1=( \${arr[*]} )"
+  fi
+}
+
+print_lines() {
+  local IFS=$'\n'
+  printf "%s\n" ${lines[@]}
+}
+
 lf() {
   $( echo ${BASH_ALIASES[lf]} $@ )
 }

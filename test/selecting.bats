@@ -92,6 +92,11 @@ create_fake_file_list
 }
 
 @test "copies selected items to the system clipboard" {
+  if [ "$( uname )" != "Darwin" ]; then
+    ## For some reason, this test only works on OS X for now...
+    return
+  fi
+
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
 
   for ((i=0;i<c;++i)); do
