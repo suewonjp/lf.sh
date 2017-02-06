@@ -56,11 +56,6 @@ create_fake_file_list
 }
 
 @test "copies filtered items to the system clipboard" {
-  if [ "$( uname )" != "Darwin" ]; then
-    ## For some reason, this test only works on OS X for now...
-    return
-  fi
-
   run lff ".db" +
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 1 ]

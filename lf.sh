@@ -1,22 +1,40 @@
 unset _LIST_FILE_OUTPUT_CACHE
 
-## Prepare pbcopy/pbpaste command pair
-## These are native commands in OS X and we define them as aliases in other systems
-type pbcopy > /dev/null 2>&1 && pbpaste > /dev/null 2>&1 || {
+## Prepare clipboard utility functions
 case "$( uname )" in
+  Darwin*)
+    _pbcopy() {
+      pbcopy
+    }
+    _pbpaste() {
+      pbpaste
+    }
+    ;;
   CYGWIN*)
-    alias pbcopy='cat - > /dev/clipboard'
-    alias pbpaste='cat /dev/clipboard'
+    _pbcopy() {
+      cat - >/dev/clipboard
+    }
+    _pbpaste() {
+      cat /dev/clipboard
+    }
     ;;
   *)
     ## If your system has xsel or xclip, we can define pbcopy/pbpaste
     ## In Linux, you can easily install either of these tools
     if type xsel > /dev/null 2>&1; then
-      alias pbcopy='xsel --clipboard --input'
-      alias pbpaste='xsel --clipboard --output'
+      _pbcopy() {
+        xsel --clipboard --input
+      }
+      _pbpaste() {
+        xsel --clipboard --output
+      }
     elif type xclip > /dev/null 2>&1; then
-      alias pbcopy='xclip -selection clipboard'
-      alias pbpaste='xclip -selection clipboard -o'
+      _pbcopy() {
+        xclip -selection clipboard
+      }
+      _pbpaste() {
+        xclip -selection clipboard -o
+      }
     else
       echo "${0##*/} [WARNNIG] pbcopy/pbpaste aliases can't be defined!" 2>&1
       echo "    - This means you can't use some extra features requiring system clipboard access via shell" 2>&1
@@ -24,15 +42,6 @@ case "$( uname )" in
     fi
     ;;
 esac
-}
-
-_pbcopy() {
-  [ -n "${BASH_ALIASES[pbcopy]}" ] && $( echo ${BASH_ALIASES[pbcopy]} ) || pbcopy
-}
-
-_pbpaste() {
-  [ -n "${BASH_ALIASES[pbpaste]}" ] && $( echo ${BASH_ALIASES[pbpaste]} ) || pbpaste
-}
 
 ## Join the words with the given delimiter
 ## e.g. _join '*' hello world ==> *hello*world 
