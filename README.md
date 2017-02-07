@@ -85,6 +85,14 @@ In these cases, you can use `--` to denote any arbitrary file;
         database/civilizer.h2.db
         database/civilizer.TRACE.DB
 
+lf command has two usage patterns;
+
+1. lf [ file pattern ]
+    - e.g) lf .txt
+1. lf [ base dir ] [ (optional) intermediate patterns ... ] [ file pattern ]
+    - [base dir] should be a complete path name, not a partial matching pattern
+    - Thus, if [base dir] doesn't exist, the search will fail
+
 To print help message, type `lf --help`
 
 ###### [ CAVEAT ] Don't use asterisk (\*) alone as a whole word like the following:

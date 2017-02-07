@@ -64,9 +64,9 @@ lf  - Quickly type and search files
 lfi - Same as `lf` except that case insensitive matching is performed
 
 ### General Usages
-1) lf [file pattern]
+1) lf [ file pattern ]
   e.g) lf .txt
-2) lf [base dir] [(optional) intermediate pattern] [file pattern]
+2) lf [ base dir ] [ (optional) intermediate patterns ... ] [ file pattern ]
   [base dir] should be a complete path name, not a partial matching pattern
   Thus, if [base dir] doesn't exist, the search will fail
   e.g) lf doc .pdf
@@ -92,7 +92,7 @@ lfi - Same as `lf` except that case insensitive matching is performed
 4) +.+ Notation
   Same as `.+` except that the output results will be absolute path
 
-https://github.com/suewonjp/lf.sh/wiki/lf
+For more information, see https://github.com/suewonjp/lf.sh/wiki/lf
 EOF
 }
 
@@ -181,16 +181,16 @@ lfs  - Select a path from results returned by lf or lfi
 
 1) lfs  
   Will list all the paths returned by previous call of `lf` or `lfi` 
-2) lfs [index]  
+2) lfs [ index ]  
   Will select a path denoted by [index] from the paths found by previous call of `lf` or `lfi`
   [index] starts from 0 not 1; Thus `lfs 0` will select the first path from the list
   [index] can be a negative value
       e.g) `lfs -1` will select the last path from the list 
-3) lfs [index] +  
+3) lfs [ index ] +  
   Same as `lfs [index]` except that the selected path will be copied to the system clipboard
   This is useful when you want to use that selected path for another application such as a text editor or file explorer, etc.
 
-https://github.com/suewonjp/lf.sh/wiki/lfs
+For more information, see https://github.com/suewonjp/lf.sh/wiki/lfs
 EOF
 }
 
@@ -242,14 +242,14 @@ lff  - Filter results returned by lf or lfi
 
 1) lff  
   Will list all the paths returned by previous call of `lf` or `lfi` 
-2) lff [pattern]  
+2) lff [ pattern ]  
   Will select one or more paths matching [pattern] from the paths found by previous call of `lf` or `lfi`
   [pattern] is `basic regular expression` used by `grep` command by default.
-3) lff [pattern] +  
+3) lff [ pattern ] +  
   Same as `lff [pattern]` except that the filtered paths will be copied to the system clipboard
   This is useful when you want to use that selected path for another application such as a text editor or file explorer, etc.
 
-https://github.com/suewonjp/lf.sh/wiki/lff
+For more information, see https://github.com/suewonjp/lf.sh/wiki/lff
 EOF
 }
 
@@ -287,11 +287,11 @@ _help_g() {
 g  - Quickly search text from file
 gi - Same as `g` except that case insensitive matching is performed
 
-1) g [text pattern] [params for lf]
+1) g [ text pattern ] [ params for lf ... ]
   All parameters except the 1st parameter obey the rule of lf command (lf -h for details)
   The 1st parameter [text pattern] is `Basic Regular Expression` (which is used by the regular `grep` command by default) pattern.
 
-https://github.com/suewonjp/lf.sh/wiki/g
+For more information, see https://github.com/suewonjp/lf.sh/wiki/g
 EOF
 }
 
