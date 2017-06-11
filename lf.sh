@@ -285,7 +285,7 @@ _lff() {
 _help_g() {
   cat <<'EOF'
 g  - Quickly search text from file
-gi - Same as `g` except that case insensitive matching is performed
+gi - Same as `g` except that case insensitive matching is performed for filenames (not for text patterns)
 
 1) g [ text pattern ] [ params for lf ... ]
   All parameters except the 1st parameter obey the rule of lf command (lf -h for details)
