@@ -310,18 +310,25 @@ EOF
 }
 
 _g() {
-  local IFS=$'\n' behavior=${1} patt=${2}
+  local behavior=${1} patt=${2}
+  local grepTool=${_LIST_FILE_GREP_TOOL:-grep} grepOptions=()
+
+  case "${grepTool}" in
+    grep|egrep|fgrep) grepOptions=( ${_LIST_FILE_GREP_OPTIONS--n} ) ;;
+    ack|ag) grepOptions=( ${_LIST_FILE_GREP_OPTIONS--H} ) ;;
+    *) echo "${0##*/} [WARNNIG] ${_LIST_FILE_GREP_TOOL} is unknown tool! Using grep instead..." 2>&1
+       grepTool=grep
+       grepOptions=( ${_LIST_FILE_GREP_OPTIONS--n} ) ;;
+  esac
+
   if [ -z "${patt}" ]; then
     _help_g
     return
   fi
   shift 2
   _lf ${behavior} $@ > /dev/null 2>&1
-  local c=${#_LIST_FILE_OUTPUT_CACHE[*]} GREP_OPTIONS=
-  for (( i=0;i<c;++i )); do
-    local match=$( grep ${_LIST_FILE_GREP_OPTIONS--n} -- "${patt}" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ -n "${match}" ] && printf "%s:%s\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" "${match}"
-  done
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]} GREP_OPTIONS= LFS=$'\n'
+  [ "${c}" -ne 0 ] && "${grepTool}" ${grepOptions[*]} -- "${patt}" "${_LIST_FILE_OUTPUT_CACHE[@]}"
 }
 
 alias ${_LIST_FILE_CMD:-lf}='_lf path'

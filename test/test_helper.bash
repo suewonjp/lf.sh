@@ -18,6 +18,7 @@ create_test_file_structure() {
       ".hidden/log/error.log" \
       ".config"
   echo "civilizer.dev=true
+civilizer.url=https://github.com/suewonjp/civilizer
 civilizer.message1=hello world!
 civilizer.message2=HELLO WORLD!" > "app-options.properties"
   echo "foo" > "files/folder 0/foo.txt"

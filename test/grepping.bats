@@ -4,6 +4,9 @@ load test_helper
 fixtures
 create_test_file_structure
 
+unset _LIST_FILE_GREP_TOOL
+unset _LIST_FILE_GREP_OPTIONS
+
 @test "confirms aliases have been defined" {
   run alias g
   [ $status -eq 0 ]
@@ -28,7 +31,7 @@ create_test_file_structure
   [ "$output" = ".hidden/baz.lst:1:baz" ]
 
   run g "civilizer"
-  [ ${#lines[*]} -eq 5 ]
+  [ ${#lines[*]} -eq 6 ]
 }
 
 @test "searches for matching pattern (ignore cases of file names)" {
@@ -45,11 +48,16 @@ create_test_file_structure
 }
 
 @test "respects _LIST_FILE_GREP_OPTIONS variable" {
-  _LIST_FILE_GREP_OPTIONS="-i"
+  _LIST_FILE_GREP_OPTIONS="-i -o"
   run gi "hello"
   [ ${#lines[*]} -eq 2 ]
-  [ "${lines[0]}" = "app-options.properties:civilizer.message1=hello world!" ]
-  [ "${lines[1]}" = "civilizer.message2=HELLO WORLD!" ]
+  [ "${lines[0]}" = "app-options.properties:hello" ]
+  [ "${lines[1]}" = "app-options.properties:HELLO" ]
+
+  _LIST_FILE_GREP_OPTIONS="-oE"
+  run gi 'https?://.+'
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = 'app-options.properties:https://github.com/suewonjp/civilizer' ]
 
   _LIST_FILE_GREP_OPTIONS=""
   run gi "hello"
@@ -69,13 +77,58 @@ create_test_file_structure
   unset _LIST_FILE_GREP_OPTIONS
   run gi "hello"
   [ ${#lines[*]} -eq 1 ]
-  [ "${lines[0]}" = "app-options.properties:2:civilizer.message1=hello world!" ]
+  [ "${lines[0]}" = "app-options.properties:3:civilizer.message1=hello world!" ]
+}
+
+@test "respects _LIST_FILE_GREP_TOOL variable - egrep" {
+  _LIST_FILE_GREP_TOOL=egrep
+  _LIST_FILE_GREP_OPTIONS="-o"
+  run g 'https?://.+'
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = 'app-options.properties:https://github.com/suewonjp/civilizer' ]
+}
+
+@test "respects _LIST_FILE_GREP_TOOL variable - fgrep" {
+  _LIST_FILE_GREP_TOOL=fgrep
+  _LIST_FILE_GREP_OPTIONS="-oi"
+  run g 'hello'
+  [ ${#lines[*]} -eq 2 ]
+  [ "${lines[0]}" = 'app-options.properties:hello' ]
+  [ "${lines[1]}" = 'app-options.properties:HELLO' ]
+}
+
+@test "respects _LIST_FILE_GREP_TOOL variable - ack" {
+  _LIST_FILE_GREP_TOOL=ack
+  run g 'hello'
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = 'app-options.properties:3:civilizer.message1=hello world!' ]
+}
+
+@test "respects _LIST_FILE_GREP_TOOL variable - ag" {
+  _LIST_FILE_GREP_TOOL=ag
+  run g 'hello'
+  #echo "+++ ${output}"
+  [ ${#lines[*]} -eq 3 ]
+  [ "${lines[0]}" = 'app-options.properties' ]
+  [ "${lines[1]}" = '3:civilizer.message1=hello world!' ]
+  [ "${lines[2]}" = '4:civilizer.message2=HELLO WORLD!' ]
+
+  _LIST_FILE_GREP_OPTIONS=--nonumbers
+  run g 'hello'
+  [ ${#lines[*]} -eq 2 ]
+  [ "${lines[0]}" = 'app-options.properties:civilizer.message1=hello world!' ]
+  [ "${lines[1]}" = 'app-options.properties:civilizer.message2=HELLO WORLD!' ]
+
+  _LIST_FILE_GREP_OPTIONS="-s --nonumbers"
+  run g 'hello'
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = 'app-options.properties:civilizer.message1=hello world!' ]
 }
 
 @test "ignores GREP_OPTIONS variable" {
   GREP_OPTIONS="-i"
   run gi "hello"
   [ ${#lines[*]} -eq 1 ]
-  [ "${lines[0]}" = "app-options.properties:2:civilizer.message1=hello world!" ]
+  [ "${lines[0]}" = "app-options.properties:3:civilizer.message1=hello world!" ]
 }
 
