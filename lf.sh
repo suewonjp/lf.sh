@@ -123,10 +123,10 @@ _lf() {
   esac
 
   if [ "$#" -le 1 ]; then
-    if [ "${1}" == '.+' ]; then
+    if [ "${1}" = '.+' ]; then
       ## '.+' denotes including dot files/directories
       includedots=true
-    elif [ "${1}" == '+.+' ]; then
+    elif [ "${1}" = '+.+' ]; then
       ## '+.+' denotes the absolute path for the current working directory
       ## and including dot files/directories
       includedots=true
@@ -137,20 +137,20 @@ _lf() {
     fi
   elif [ "$#" -ge 2 ]; then
     ## The base directory and intermediate directory/file patterns are given
-    if [ "${1}" == '+' ]; then
+    if [ "${1}" = '+' ]; then
       ## '+' denotes the absolute path for the current working directory
       abspathcwd=true
-    elif [ "${1}" == '.+' ]; then
+    elif [ "${1}" = '.+' ]; then
       ## '.+' denotes including dot files/directories
       includedots=true
-    elif [ "${1}" == '+.+' ]; then
+    elif [ "${1}" = '+.+' ]; then
       ## '+.+' denotes the absolute path for the current working directory
       ## and including dot files/directories
       includedots=true
       abspathcwd=true
-    elif [ "${1:0:1}" == '/' ]; then
+    elif [ "${1:0:1}" = '/' ]; then
       basedir=${1}
-    elif [ "${1:0:1}" == '+' ]; then
+    elif [ "${1:0:1}" = '+' ]; then
       ## '+' prefix denotes the absolute path for the given base directory
       ## e.g. "+src" will expand to $PWD/src
       basedir="${1:1}"
@@ -164,19 +164,19 @@ _lf() {
     if [ "$#" -eq 2 ]; then
       ## Case of the base directory and a single file pattern
       pattern="*${2}"
-      [ "${2}" == '--' ] && pattern='*'
+      [ "${2}" = '--' ] && pattern='*'
     else
       ## Case of the base directory and multiple file patterns
       shift
       pattern="$( _join '*' $* )"
-      [ "${pattern: -2}" == '--' ] && pattern="${pattern%--}"
+      [ "${pattern: -2}" = '--' ] && pattern="${pattern%--}"
     fi
   fi
 
-  if [ "${includedots}" == "true" ]; then
+  if [ "${includedots}" = "true" ]; then
     _LIST_FILE_OUTPUT_CACHE=( $( find "${basedir}" -type f -${behavior} "${pattern}" ) )
   else
-    _LIST_FILE_OUTPUT_CACHE=( $( find "${basedir}" -type f -${behavior} "${pattern}" \! \( -path './.*' \) ) )
+    _LIST_FILE_OUTPUT_CACHE=( $( find "${basedir}" -type f -${behavior} "${pattern}" \! -path "${basedir}/.*" ) )
   fi
 
   local prefix=
