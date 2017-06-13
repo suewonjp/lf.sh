@@ -314,11 +314,11 @@ _g() {
   local grepTool=${_LIST_FILE_GREP_TOOL:-grep} grepOptions=()
 
   case "${grepTool}" in
-    grep|egrep|fgrep) grepOptions=( ${_LIST_FILE_GREP_OPTIONS--n} ) ;;
-    ack|ag) grepOptions=( ${_LIST_FILE_GREP_OPTIONS--H} ) ;;
+    grep|egrep|fgrep) read -ra grepOptions <<< "${_LIST_FILE_GREP_OPTIONS--n}" ;;
+    ack|ag) read -ra grepOptions <<< "${_LIST_FILE_GREP_OPTIONS--H}" ;;
     *) echo "${0##*/} [WARNNIG] ${_LIST_FILE_GREP_TOOL} is unknown tool! Using grep instead..." 2>&1
        grepTool=grep
-       grepOptions=( ${_LIST_FILE_GREP_OPTIONS--n} ) ;;
+       read -ra grepOptions <<< "${_LIST_FILE_GREP_OPTIONS--n}" ;;
   esac
 
   if [ -z "${patt}" ]; then

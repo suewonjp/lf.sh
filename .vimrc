@@ -5,3 +5,5 @@ set tabstop=2 softtabstop=2 shiftwidth=2 expandtab
 
 au BufRead,BufNewFile *.bats set filetype=sh
 
+let g:is_bash = 1
+
