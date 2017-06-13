@@ -71,6 +71,24 @@ _join() {
   #echo ${result}
 }
 
+## Trim leading & trailing whitespaces from the given string
+_trim() {
+  # remove leading whitespace characters
+  local var="${1#"${1%%[![:space:]]*}"}"
+  # remove trailing whitespace characters
+  echo "${var%"${var##*[![:space:]]}"}"
+}
+
+## Convert names of directories to ignore into a friendlier form to 'find' command 
+_compile_dirs2ignore() {
+  local IFS=':' dirs2ignore= output=
+  read -ra dirs2ignore <<< "$1"
+  for d in "${dirs2ignore[@]}"; do
+    [ "$d" ] && output+="!:-path:*`_trim $d`/*:"
+  done
+  echo "${output}"
+}
+
 ## Help Message
 _help_lf() {
   cat <<'EOF'
@@ -112,7 +130,7 @@ EOF
 
 ## List Files
 _lf() {
-  local IFS=$'\n' basedir=. abspathcwd= pattern='*' behavior="${1}" includedots=
+  local basedir=. abspathcwd= pattern='*' behavior="${1}" includedots=
   shift
 
   case  "${1}" in
@@ -173,10 +191,11 @@ _lf() {
     fi
   fi
 
+  local dirs2ignore=`_compile_dirs2ignore "${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n':
   if [ "${includedots}" = "true" ]; then
-    _LIST_FILE_OUTPUT_CACHE=( $( find "${basedir}" -type f -${behavior} "${pattern}" ) )
+    _LIST_FILE_OUTPUT_CACHE=( $( set f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
   else
-    _LIST_FILE_OUTPUT_CACHE=( $( find "${basedir}" -type f -${behavior} "${pattern}" \! -path "${basedir}/.*" ) )
+    _LIST_FILE_OUTPUT_CACHE=( $( set f; find "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
   fi
 
   local prefix=

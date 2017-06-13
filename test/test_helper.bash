@@ -101,3 +101,7 @@ teardown() {
   :
 }
 
+show_output() {
+  echo "actual output => $output"
+}
+

@@ -26,6 +26,58 @@ create_test_file_structure
   #[ "$output" = '.*hello.*world' ]
 }
 
+@test "_trim works as expected" {
+  run _trim "   hello   "
+  [ $status -eq 0 ]
+  [ "$output" = 'hello' ]
+
+  run _trim "   hello  world   "
+  [ $status -eq 0 ]
+  [ "$output" = 'hello  world' ]
+
+  run _trim "   "
+  [ $status -eq 0 ]
+  [ "$output" = '' ]
+
+  run _trim
+  [ $status -eq 0 ]
+  [ "$output" = '' ]
+}
+
+@test "_compile_dirs2ignore works as expected" {
+  run _compile_dirs2ignore " .git :.svn : .hg  "
+  [ $status -eq 0 ]
+  [ "$output" = "!:-path:*.git/*:!:-path:*.svn/*:!:-path:*.hg/*:" ]
+
+  run _compile_dirs2ignore ".git : some dirs to  ignore  :build  "
+  [ $status -eq 0 ]
+  [ "$output" = "!:-path:*.git/*:!:-path:*some dirs to  ignore/*:!:-path:*build/*:" ]
+
+  run _compile_dirs2ignore ":.hidden"
+  [ $status -eq 0 ]
+  [ "$output" = '!:-path:*.hidden/*:' ]
+
+  run _compile_dirs2ignore ".hidden:"
+  [ $status -eq 0 ]
+  [ "$output" = '!:-path:*.hidden/*:' ]
+
+  run _compile_dirs2ignore ":.hidden:"
+  [ $status -eq 0 ]
+  [ "$output" = '!:-path:*.hidden/*:' ]
+
+  run _compile_dirs2ignore ":"
+  [ $status -eq 0 ]
+  [ "$output" = '' ]
+  
+  run _compile_dirs2ignore "::"
+  [ $status -eq 0 ]
+  [ "$output" = '' ]
+
+  run _compile_dirs2ignore
+  [ $status -eq 0 ]
+  [ "$output" = '' ]
+}
+
 @test "prints help messages" {
   run lf -h
   [ $status -eq 0 ] && [ "$output" = "$( _help_lf )" ]
@@ -48,6 +100,7 @@ create_test_file_structure
 
 @test "lists all files" {
   run lf
+  show_output
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 8 ]
   sort_array lines
@@ -118,6 +171,33 @@ create_test_file_structure
   sort_array lines
   [ "${lines[9]}" = "${PWD}/.hidden/baz.lst" ]
   [ "${lines[10]}" = "${PWD}/.hidden/log/error.log" ]
+}
+
+@test "respects _LIST_FILE_DIRS_IGNORE variable" {
+  _LIST_FILE_DIRS_IGNORE=".hidden"
+  run lf .+
+  show_output
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 9 ]
+  sort_array lines
+  [ "${lines[0]}" = "app-options.properties" ]
+  [ "${lines[8]}" = "files/folder 1/bar.txt" ]
+
+  run lf .+ --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 9 ]
+
+  run lf +.+ --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 9 ]
+  sort_array lines
+  [ "${lines[0]}" = "${PWD}/app-options.properties" ]
+  [ "${lines[8]}" = "${PWD}/files/folder 1/bar.txt" ]
+
+  _LIST_FILE_DIRS_IGNORE=":"
+  run lf .+ --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 11 ]
 }
 
 @test "lists files with a file extention" {
