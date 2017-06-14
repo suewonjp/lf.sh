@@ -99,12 +99,13 @@ lfi - Same as `lf` except that case insensitive matching is performed
 1) lf [ file pattern ]
   e.g) lf .txt
 2) lf [ base dir ] [ (optional) intermediate patterns ... ] [ file pattern ]
-  [base dir] should be a complete path name, not a partial matching pattern
-  Thus, if [base dir] doesn't exist, the search will fail
+  [base dir] should be a complete path name, not a partial matching pattern.
   e.g) lf doc .pdf
   e.g) lf src web home*.js
   e.g) lf ~/bin .sh
   e.g) lf /usr/local share .txt
+
+By default, `lf` will exclude dot folders (.git, .svn, etc) from its search
 
 ### Special Notations
 1) -- Notation
@@ -116,11 +117,11 @@ lfi - Same as `lf` except that case insensitive matching is performed
      - Will recursively search .pdf files through current working directory so that matching files should contain the pattern `*doc*.pdf`;
      - The output results will be absolute path
   e.g) lf +doc .pdf
-     - Will recursively search .pdf files through *$PWD/doc* directory
+     - Will recursively search .pdf files through `$PWD/doc` directory
      - The output results will be absolute path
 3) .+ Notation
-  Will also search dot folders right under the current working directory (such as .git, .svn, etc)
-  By default, `lf` will exclude these dot folders from its search
+  Will also search through dot folders (such as .git, .svn, etc).
+  e.g) lf .+ .java
 4) +.+ Notation
   Same as `.+` except that the output results will be absolute path
 
@@ -322,12 +323,17 @@ _lff() {
 
 _help_g() {
   cat <<'EOF'
-g  - Quickly search text from file
+g  - Quickly search text from files
 gi - Same as `g` except that case insensitive matching is performed for filenames (not for text patterns)
 
-1) g [ text pattern ] [ params for lf ... ]
-  All parameters except the 1st parameter obey the rule of lf command (lf -h for details)
-  The 1st parameter [text pattern] is `Basic Regular Expression` (which is used by the regular `grep` command by default) pattern.
+1) g [ text pattern ]
+  Will search files (recursively) for the given text pattern through current working directory.
+  By default, dot folders (like .git, .svn, etc) will be excluded from its search
+    - In order to include dot folders, use `.+` notation like `g [ text pattern ] .+`
+  [ text pattern ] is `Basic Regular Expression`.
+
+2) g [ text pattern ] [ params for lf ... ]
+  All parameters except the 1st parameter obey the rule of lf command (lf -h for details).
 
 For more information, see https://github.com/suewonjp/lf.sh/wiki/g
 EOF
