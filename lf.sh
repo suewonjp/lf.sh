@@ -155,17 +155,22 @@ _lf() {
     fi
   elif [ "$#" -ge 2 ]; then
     ## The base directory and intermediate directory/file patterns are given
-    if [ "${1}" = '+' ]; then
-      ## '+' denotes the absolute path for the current working directory
-      abspathcwd=true
-    elif [ "${1}" = '.+' ]; then
-      ## '.+' denotes including dot files/directories
-      includedots=true
-    elif [ "${1}" = '+.+' ]; then
+    if [ "${1}" = '+.+' ]; then
       ## '+.+' denotes the absolute path for the current working directory
       ## and including dot files/directories
       includedots=true
       abspathcwd=true
+    elif [ "${1}" = '.+' ]; then
+      ## '.+' denotes including dot files/directories
+      includedots=true
+    elif [ "${1}" = '+' ]; then
+      ## '+' denotes the absolute path for the current working directory
+      abspathcwd=true
+    elif [ "${1:0:2}" = '.+' ]; then
+      ## '.+' denotes including dot files/directories
+      ## e.g. ".+src" will search 'src' directory including dot files/directories
+      [ "${1:0:2}" = '/' ] && basedir="${1:3}" || basedir="${1:2}"
+      includedots=true
     elif [ "${1:0:1}" = '/' ]; then
       basedir=${1}
     elif [ "${1:0:1}" = '+' ]; then

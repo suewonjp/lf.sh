@@ -165,6 +165,22 @@ create_test_file_structure
   [ "${lines[9]}" = ".hidden/baz.lst" ]
   [ "${lines[10]}" = ".hidden/log/error.log" ]
 
+  run lf .+${PWD} --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 11 ]
+  sort_array lines
+  [ "${lines[9]}" = "${PWD}/.hidden/baz.lst" ]
+  [ "${lines[10]}" = "${PWD}/.hidden/log/error.log" ]
+
+  cd ..
+  run lf .+${TEST_FS} --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 11 ]
+  sort_array lines
+  [ "${lines[9]}" = "${TEST_FS}/.hidden/baz.lst" ]
+  [ "${lines[10]}" = "${TEST_FS}/.hidden/log/error.log" ]
+  cd -
+
   run lf +.+ --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 11 ]
