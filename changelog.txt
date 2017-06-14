@@ -1,7 +1,11 @@
 Copyright (c) 2014-2017 Suewon Bahng, suewonjp@gmail.com
 
-Last Updated (2017-02-07)
+Last Updated (2017-06-14)
 
-## Version 0.5.0 (2015-02-07)
+## Version 0.6.0 (2017-06-14)
+- Users can specify underlying grep tool when using 'g' or 'gi' command
+- '.+' notation can be put together with base dir path
+
+## Version 0.5.0 (2017-02-07)
 - First Release.
 
