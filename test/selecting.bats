@@ -5,15 +5,21 @@ fixtures
 create_fake_file_list
 
 @test "confirms aliases have been defined" {
+  control_test
+
   run alias lfs
   [ $status -eq 0 ]
 }
 
 @test "confirms the fake file list for testing has been created" {
+  control_test
+
   [ ${#_LIST_FILE_OUTPUT_CACHE[*]} -gt 0 ]
 }
 
 @test "prints help messages" {
+  control_test
+
   run lfs -h
   [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
 
@@ -34,6 +40,8 @@ create_fake_file_list
 }
 
 @test "lists all when no parameter given" {
+  control_test
+
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
   run lfs
   [ $status -eq 0 ]
@@ -41,6 +49,8 @@ create_fake_file_list
 }
 
 @test "selecting works for valid positive index range" {
+  control_test
+
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
 
   for ((i=0;i<c;++i)); do
@@ -52,6 +62,8 @@ create_fake_file_list
 }
 
 @test "selecting works for valid negative index range" {
+  control_test
+
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
 
   for ((i=-c;i<0;++i)); do
@@ -64,6 +76,8 @@ create_fake_file_list
 }
 
 @test "selecting with invalid index returns nothing" {
+  control_test
+
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
 
   run lfs $c
@@ -84,6 +98,8 @@ create_fake_file_list
 }
 
 @test "copies selected items to the system clipboard" {
+  control_test
+
   if [[ "$( uname )" =~ Linux ]]; then
     ## Bats won't allow this test to run on Linux for some reason
     ## Looks like Bats is not supporting pipe properly

@@ -105,3 +105,10 @@ show_output() {
   echo "actual output => $output"
 }
 
+_LIST_FILE_TEST_SKIP_ALL=n
+
+control_test() {
+  [[ "${_LIST_FILE_TEST_SKIP_ALL}" = "y" || "${1}" = "skip" ]] && skip
+  :
+}
+

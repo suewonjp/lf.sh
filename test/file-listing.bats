@@ -5,6 +5,8 @@ fixtures
 create_test_file_structure
 
 @test "confirms aliases have been defined" {
+  control_test
+
   run alias lf
   [ $status -eq 0 ]
 
@@ -13,10 +15,14 @@ create_test_file_structure
 }
 
 @test "confirms the file structure for testing has been created" {
+  control_test
+
   [ -d "${FIXTURE_ROOT}/${TEST_FS}" ]
 }
 
 @test "_join works as expected" {
+  control_test
+
   run _join '*' hello world
   [ $status -eq 0 ]
   [ "$output" = '*hello*world' ]
@@ -27,6 +33,8 @@ create_test_file_structure
 }
 
 @test "_trim works as expected" {
+  control_test
+
   run _trim "   hello   "
   [ $status -eq 0 ]
   [ "$output" = 'hello' ]
@@ -45,6 +53,8 @@ create_test_file_structure
 }
 
 @test "_compile_dirs2ignore works as expected" {
+  control_test
+
   run _compile_dirs2ignore " .git :.svn : .hg  "
   [ $status -eq 0 ]
   [ "$output" = "!:-path:*.git/*:!:-path:*.svn/*:!:-path:*.hg/*:" ]
@@ -79,6 +89,8 @@ create_test_file_structure
 }
 
 @test "prints help messages" {
+  control_test
+
   run lf -h
   [ $status -eq 0 ] && [ "$output" = "$( _help_lf )" ]
 
@@ -99,6 +111,8 @@ create_test_file_structure
 }
 
 @test "lists all files" {
+  control_test
+
   run lf
   show_output
   [ $status -eq 0 ]
@@ -137,6 +151,8 @@ create_test_file_structure
 }
 
 @test "removes trailing duplicate slashes if given" {
+  control_test
+
   run lf .// --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 8 ]
@@ -151,6 +167,8 @@ create_test_file_structure
 }
 
 @test "lists all files (including dot files)" {
+  control_test
+
   run lf .+
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 11 ]
@@ -190,6 +208,8 @@ create_test_file_structure
 }
 
 @test "respects _LIST_FILE_DIRS_IGNORE variable" {
+  control_test
+
   _LIST_FILE_DIRS_IGNORE=".hidden"
   run lf .+
   show_output
@@ -217,6 +237,8 @@ create_test_file_structure
 }
 
 @test "lists files with a file extention" {
+  control_test
+
   local regex=".txt$"
   run lf .txt
   [ $status -eq 0 ]
@@ -229,6 +251,8 @@ create_test_file_structure
 }
 
 @test "lists files with file pattern " {
+  control_test
+
   local regex="empty.txt$"
   run lf empty*
   [ $status -eq 0 ]
@@ -247,6 +271,8 @@ create_test_file_structure
 }
 
 @test "lists files with an intermediate folder and file extention" {
+  control_test
+
   run lf database .db
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 1 ]
@@ -264,6 +290,8 @@ create_test_file_structure
 }
 
 @test "lists files with an intermediate folder and file extention (ignore cases)" {
+  control_test
+
   local regex=database.*.\(db\|DB\)$
   run lfi database .db
   [ $status -eq 0 ]
@@ -286,6 +314,8 @@ create_test_file_structure
 }
 
 @test "lists files with intermediate folders" {
+  control_test
+
   run lf files folder --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 4 ]
@@ -306,6 +336,8 @@ create_test_file_structure
 }
 
 @test "lists files with intermediate folders and file extention" {
+  control_test
+
   run lf files folder 0 .txt
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
@@ -324,6 +356,8 @@ create_test_file_structure
 }
 
 @test "lists only dot files" {
+  control_test
+
   run lf .+ /. --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]
@@ -342,6 +376,8 @@ create_test_file_structure
 }
 
 @test "lists files under a dot directory" {
+  control_test
+
   run lf .+ .hidd --
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 2 ]
@@ -368,6 +404,8 @@ create_test_file_structure
 }
 
 @test "lists files with an absolute base path" {
+  control_test
+
   run lf "${PWD}" folder 0 .txt
   [ $status -eq 0 ]
   [ ${#lines[*]} -eq 3 ]

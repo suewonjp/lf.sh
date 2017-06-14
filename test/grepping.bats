@@ -8,6 +8,8 @@ unset _LIST_FILE_GREP_TOOL
 unset _LIST_FILE_GREP_OPTIONS
 
 @test "confirms aliases have been defined" {
+  control_test
+
   run alias g
   [ $status -eq 0 ]
 
@@ -16,11 +18,15 @@ unset _LIST_FILE_GREP_OPTIONS
 }
 
 @test "prints help messages" {
+  control_test
+
   run g
   [ $status -eq 0 ] && [ "$output" = "$( _help_g )" ]
 }
 
 @test "searches for matching pattern" {
+  control_test
+
   run g foo .txt
   [ "$output" = "files/folder 0/foo.txt:1:foo" ]
 
@@ -35,11 +41,15 @@ unset _LIST_FILE_GREP_OPTIONS
 }
 
 @test "searches for matching pattern (ignore cases of file names)" {
+  control_test
+
   run gi "civilizer" .db
   [ ${#lines[*]} -eq 2 ]
 }
 
 @test "searches for non-matching pattern" {
+  control_test
+
   run g FOO file .txt
   [ "$output" = "" ]
 
@@ -48,6 +58,8 @@ unset _LIST_FILE_GREP_OPTIONS
 }
 
 @test "respects _LIST_FILE_GREP_OPTIONS variable" {
+  control_test
+
   _LIST_FILE_GREP_OPTIONS="-i -o"
   run gi "hello"
   [ ${#lines[*]} -eq 2 ]
@@ -81,6 +93,8 @@ unset _LIST_FILE_GREP_OPTIONS
 }
 
 @test "respects _LIST_FILE_GREP_TOOL variable - egrep" {
+  control_test
+
   _LIST_FILE_GREP_TOOL=egrep
   _LIST_FILE_GREP_OPTIONS="-o"
   run g 'https?://.+'
@@ -89,6 +103,8 @@ unset _LIST_FILE_GREP_OPTIONS
 }
 
 @test "respects _LIST_FILE_GREP_TOOL variable - fgrep" {
+  control_test
+
   _LIST_FILE_GREP_TOOL=fgrep
   _LIST_FILE_GREP_OPTIONS="-oi"
   run g 'hello'
@@ -98,6 +114,12 @@ unset _LIST_FILE_GREP_OPTIONS
 }
 
 @test "respects _LIST_FILE_GREP_TOOL variable - ack" {
+  control_test
+
+  if ! type ack > /dev/null 2>&1; then
+    skip "Ack is not installed..."
+  fi
+
   _LIST_FILE_GREP_TOOL=ack
   run g 'hello'
   [ ${#lines[*]} -eq 1 ]
@@ -105,6 +127,12 @@ unset _LIST_FILE_GREP_OPTIONS
 }
 
 @test "respects _LIST_FILE_GREP_TOOL variable - ag" {
+  control_test
+
+  if ! type ag > /dev/null 2>&1; then
+    skip "The Silver Searcher is not installed..."
+  fi
+
   _LIST_FILE_GREP_TOOL=ag
   run g 'hello'
   #echo "+++ ${output}"
@@ -126,6 +154,8 @@ unset _LIST_FILE_GREP_OPTIONS
 }
 
 @test "ignores GREP_OPTIONS variable" {
+  control_test
+
   GREP_OPTIONS="-i"
   run gi "hello"
   [ ${#lines[*]} -eq 1 ]
