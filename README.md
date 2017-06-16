@@ -124,18 +124,26 @@ If you don't have any clue about target filename pattern, use `--` instead of `*
         files/folder 0/folder 2/empty.txt
         files/folder 0/foo.txt
 
-Read [this](https://github.com/suewonjp/lf.sh/wiki/lf#quirks) for other quirks
+Read [this](https://github.com/suewonjp/lf.sh/wiki/Quirks-Troubleshootings) for other quirks
 
-### :coffee: DETAILED MANUALS FOR ALL COMMANDS
+### :coffee: MANUALS & DOCUMENTATIONS
 [ lf command  : Quickly type and search files ](https://github.com/suewonjp/lf.sh/wiki/lf)
 
-`lf.sh` will come with other useful commands besides `lf` demonstrated above;
+> Notice that `lf.sh` comes with other useful commands besides `lf` demonstrated above;
 
 [ lfs command : Select a path from results returned by lf or lfi ](https://github.com/suewonjp/lf.sh/wiki/lfs)
 
 [ lff command : Filter results returned by lf or lfi ](https://github.com/suewonjp/lf.sh/wiki/lff)
 
 [ g command   : Quickly search text from files returned by lf or lfi ](https://github.com/suewonjp/lf.sh/wiki/g)
+
+* * *
+
+[ Tips ](https://github.com/suewonjp/lf.sh/wiki/Tips)
+
+[ How to Configure lf.sh ](https://github.com/suewonjp/lf.sh/wiki/How-To-Configure)
+
+[ Quirks & Troubleshootings ](https://github.com/suewonjp/lf.sh/wiki/Quirks-Troubleshootings)
 
 ### :coffee: HOW TO INSTALL
 Download [lf.sh script](https://github.com/suewonjp/lf.sh/blob/master/lf.sh "") and copy it to your favorite place.  
