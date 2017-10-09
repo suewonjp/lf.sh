@@ -59,6 +59,10 @@ create_test_file_structure
   [ $status -eq 0 ]
   [ "$output" = "!:-path:*.git/*:!:-path:*.svn/*:!:-path:*.hg/*:" ]
 
+  run _compile_dirs2ignore "database: .git :.svn : .hg  "
+  [ $status -eq 0 ]
+  [ "$output" = "!:-path:*database/*:!:-path:*.git/*:!:-path:*.svn/*:!:-path:*.hg/*:" ]
+
   run _compile_dirs2ignore ".git : some dirs to  ignore  :build  "
   [ $status -eq 0 ]
   [ "$output" = "!:-path:*.git/*:!:-path:*some dirs to  ignore/*:!:-path:*build/*:" ]
@@ -413,5 +417,28 @@ create_test_file_structure
   [ "${lines[0]}" = "$PWD/files/folder 0/empty.txt" ]
   [ "${lines[1]}" = "$PWD/files/folder 0/folder 2/empty.txt" ]
   [ "${lines[2]}" = "$PWD/files/folder 0/foo.txt" ]
+}
+
+@test "ignores files with 'ignore' variable" {
+  control_test
+
+  ignore=database run lf --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 6 ]
+  sort_array lines
+  [ "${lines[0]}" = "app-options.properties" ]
+  [ "${lines[5]}" = "files/folder 1/bar.txt" ]
+
+  ignore=files/ run lf --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 3 ]
+
+  ignore='folder 0:' run lf --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 5 ]
+
+  ignore='folder 0:' run lf .+ --
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 8 ]
 }
 

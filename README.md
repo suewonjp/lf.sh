@@ -84,6 +84,18 @@ In these cases, you can use `--` to denote any arbitrary file;
         database/civilizer.h2.db
         database/civilizer.TRACE.DB
 
+**[ Since version 0.7 ]** Use `ignore` variable to specify folders to ignore like so:
+
+        $ ignore=node_module lf .js
+
+Use colon (:) to specify multiple folders to ignore.
+
+        $ ignore=node_module:www lf .js
+
+Quote them if they contain space characters.
+
+        $ ignore='node_module:temp memo' lf .js
+
 ### :coffee: General Formula
 `lf` command has two usage patterns;
 
@@ -93,6 +105,8 @@ In these cases, you can use `--` to denote any arbitrary file;
     - [base dir] should be a complete path (relative or absolute), not a partial matching pattern
         - `.`(current path) or `..`(parent path) is also accepted
     - If [base dir] doesn't exist on the file system, the search will fail
+1. ignore=[ folders to ignore ] lf [ ... ]
+    - Available since version 0.7
 
 Notice that [ target file pattern ] is required in any case.
 
@@ -174,10 +188,11 @@ Man pages are not ready yet...
     See the License for the specific language governing permissions and
     limitations under the License.
 
-* * *
-Updated by Suewon Bahng ( June 2017 )
-
 ### :busts_in_silhouette: CONTRIBUTORS
 Suewon Bahng  
 
 Other contributors are welcome!
+
+* * *
+Updated by Suewon Bahng ( Oct 2017 )
+

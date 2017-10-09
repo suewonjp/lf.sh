@@ -84,7 +84,7 @@ _compile_dirs2ignore() {
   local IFS=':' dirs2ignore= output=
   read -ra dirs2ignore <<< "$1"
   for d in "${dirs2ignore[@]}"; do
-    [ "$d" ] && output+="!:-path:*`_trim $d`/*:"
+    [ "$d" ] && output+="!:-path:*`_trim ${d%/}`/*:"
   done
   echo "${output}"
 }
@@ -124,6 +124,11 @@ By default, `lf` will exclude dot folders (.git, .svn, etc) from its search
   e.g) lf .+ .java
 4) +.+ Notation
   Same as `.+` except that the output results will be absolute path
+
+### Etc.
+1) You can ignore folders as follows (Use colon to specify multiple folders to ignore)
+  ignore=.git lf .java
+  ignore='.git : other folder to ignore' lf .java
 
 For more information, see https://github.com/suewonjp/lf.sh/wiki/lf
 EOF
@@ -197,7 +202,7 @@ _lf() {
     fi
   fi
 
-  local dirs2ignore=`_compile_dirs2ignore "${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n':
+  local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n':
   if [ "${includedots}" = "true" ]; then
     _LIST_FILE_OUTPUT_CACHE=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
   else
