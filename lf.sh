@@ -199,9 +199,9 @@ _lf() {
 
   local dirs2ignore=`_compile_dirs2ignore "${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n':
   if [ "${includedots}" = "true" ]; then
-    _LIST_FILE_OUTPUT_CACHE=( $( set f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
+    _LIST_FILE_OUTPUT_CACHE=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
   else
-    _LIST_FILE_OUTPUT_CACHE=( $( set f; find "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
+    _LIST_FILE_OUTPUT_CACHE=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
   fi
 
   local prefix=
