@@ -442,3 +442,31 @@ create_test_file_structure
   [ ${#lines[*]} -eq 8 ]
 }
 
+@test "appends or prepends new search result to the existing result" {
+  control_test
+
+  create_fake_file_list
+
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+  run lfs
+  [ $status -eq 0 ]
+  [[ ${#lines[*]} -eq $(( $c + 0 )) ]]
+
+  prepend= run lf .properties
+  [ $status -eq 0 ]
+  [[ ${#lines[*]} -eq $(( $c + 1)) ]]
+  [ "${lines[0]}" = "app-options.properties" ]
+
+  append= run lf database --
+  [ $status -eq 0 ]
+  #printf "%s\n" ${lines[@]}
+  [[ ${#lines[*]} -eq $(( $c + 2)) ]]
+  [ "${lines[$(( $c + 1 ))]}" = "database/civilizer.TRACE.DB" ]
+
+  # When 'prepend' and 'append' are used simultaneously, respect only 'prepend'
+  prepend= append= run lf .properties
+  [ $status -eq 0 ]
+  [[ ${#lines[*]} -eq $(( $c + 1)) ]]
+  [ "${lines[0]}" = "app-options.properties" ]
+}
+

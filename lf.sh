@@ -202,18 +202,25 @@ _lf() {
     fi
   fi
 
-  local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n':
+  local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n': cache=
   if [ "${includedots}" = "true" ]; then
-    _LIST_FILE_OUTPUT_CACHE=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
+    cache=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
   else
-    _LIST_FILE_OUTPUT_CACHE=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
+    cache=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
   fi
+
+  ## Prepend new search result to the existing result
+  cache+=( ${prepend+`printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}`} )
+
+  ## Append new search result to the existing result but only when 'prepend' is not used
+  [ "${prepend-undefined}" = 'undefined' ] && cache=( ${append+`printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}`} ${cache[@]} )
 
   local prefix=
   [ "${abspathcwd}" = "true" ] && prefix="$PWD/"
-  for (( i=0; i<${#_LIST_FILE_OUTPUT_CACHE[*]}; ++i)); do
+  _LIST_FILE_OUTPUT_CACHE=()
+  for (( i=0; i<${#cache[*]}; ++i)); do
     ## Remove leading "./" from each path and make it absolute if instructed so
-    _LIST_FILE_OUTPUT_CACHE[i]="${prefix}${_LIST_FILE_OUTPUT_CACHE[i]#./}"
+    _LIST_FILE_OUTPUT_CACHE[i]="${prefix}${cache[i]#./}"
   done
 
   printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]} 

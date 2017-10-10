@@ -96,6 +96,7 @@ Quote them if they contain space characters.
 
         $ ignore='node_module:temp memo' lf .js
 
+Also, there are other variables like `ignore` for quickly controlling behaviors of `lf`. See [Quick Behavioral Control Variables](https://github.com/suewonjp/lf.sh/wiki/lf#heavy_check_mark-quick-behavioral-control-variables)
 ### :coffee: General Formula
 `lf` command has two usage patterns;
 
@@ -105,8 +106,6 @@ Quote them if they contain space characters.
     - [base dir] should be a complete path (relative or absolute), not a partial matching pattern
         - `.`(current path) or `..`(parent path) is also accepted
     - If [base dir] doesn't exist on the file system, the search will fail
-1. ignore=[ folders to ignore ] lf [ ... ]
-    - Available since version 0.7
 
 Notice that [ target file pattern ] is required in any case.
 
