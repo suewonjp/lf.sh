@@ -1,6 +1,11 @@
 Copyright (c) 2014-2017 Suewon Bahng, suewonjp@gmail.com
 
-Last Updated (2017-06-14)
+Last Updated (2017-10-10)
+
+## Version 0.7.0 (2017-10-10)
+- Users can specify folders to ignore by attaching 'ignore' variable
+- Users can append or prepend new search result to the existing search result
+- Fixed some minor bugs
 
 ## Version 0.6.0 (2017-06-14)
 - Users can specify underlying grep tool when using 'g' or 'gi' command
