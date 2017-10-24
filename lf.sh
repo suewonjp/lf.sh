@@ -202,6 +202,8 @@ _lf() {
     fi
   fi
 
+  local ignore=${ignore} prepend=${prepend+on} append=${append+on}
+  local pre=${pre} post=${post} q=${q+on} qq=${qq+on}
   local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n': cache=
   if [ "${includedots}" = "true" ]; then
     cache=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
@@ -210,20 +212,26 @@ _lf() {
   fi
 
   ## Prepend new search result to the existing result
-  cache+=( ${prepend+`printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}`} )
+  cache+=( ${prepend:+`printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}`} )
 
   ## Append new search result to the existing result but only when 'prepend' is not used
-  [ "${prepend-undefined}" = 'undefined' ] && cache=( ${append+`printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}`} ${cache[@]} )
+  [ "${prepend}" != 'on' ] && cache=( ${append:+`printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}`} ${cache[@]} )
 
-  local prefix=
-  [ "${abspathcwd}" = "true" ] && prefix="$PWD/"
+  local pwd=
+  [ "${abspathcwd}" = "true" ] && pwd="$PWD/"
   _LIST_FILE_OUTPUT_CACHE=()
   for (( i=0; i<${#cache[*]}; ++i)); do
     ## Remove leading "./" from each path and make it absolute if instructed so
-    _LIST_FILE_OUTPUT_CACHE[i]="${prefix}${cache[i]#./}"
+    _LIST_FILE_OUTPUT_CACHE[i]="${pwd}${cache[i]#./}"
   done
 
-  printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]} 
+  if [ "${qq}" = 'on' ]; then
+    pre=\" post=\"
+  elif [ "${q}" = 'on' ]; then
+    pre=\' post=\'
+  fi
+
+  printf "${pre}%s${post}\n" ${_LIST_FILE_OUTPUT_CACHE[@]}
 }
 
 _help_lfs() {
@@ -254,14 +262,20 @@ _lfs() {
       ;;
   esac
 
+  local pre=${pre} post=${post} q=${q+on} qq=${qq+on}
+  if [ "${qq}" = 'on' ]; then
+    pre=\" post=\"
+  elif [ "${q}" = 'on' ]; then
+    pre=\' post=\'
+  fi
+
   if [ $# -eq 0 ]; then
     local IFS=$'\n'
-    printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}
+    printf "${pre}%s${post}\n" ${_LIST_FILE_OUTPUT_CACHE[@]}
     return
   fi
 
-  local c=${#_LIST_FILE_OUTPUT_CACHE[@]}
-  local index=${c}
+  local c=${#_LIST_FILE_OUTPUT_CACHE[@]} index=${c}
   case "${1}" in
     [0-9]*) ## We need to confirm the variable is an integer number
       if [ 0 -le "${1}" ] && [ "${1}" -lt "${c}" ]; then
@@ -277,13 +291,16 @@ _lfs() {
       fi
       ;;
   esac
+
+  local tmp=$( printf "${pre}%s${post}\n" "${_LIST_FILE_OUTPUT_CACHE[index]}" )
+
   if [ "${index}" -eq "${c}" ]; then
     return 1
   elif [ "${2}" = "+" ]; then
-    echo ${_LIST_FILE_OUTPUT_CACHE[index]}
-    echo -n ${_LIST_FILE_OUTPUT_CACHE[index]} | _pbcopy
+    echo "$tmp"
+    echo -n "$tmp" | _pbcopy
   else
-    echo ${_LIST_FILE_OUTPUT_CACHE[index]}
+    echo "$tmp"
   fi
 }
 

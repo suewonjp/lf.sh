@@ -118,3 +118,104 @@ create_fake_file_list
   done
 }
 
+@test "adds prefix and postfix to each of search result" {
+  control_test
+
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]} pr= po= tmp=
+
+  pr=\` po=\`
+  pre=${pr} post=${po} run lfs
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    echo ${lines[i]} "---  " $tmp
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\` po=\`
+  pre=${pr} post=${po} run lfs
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\( po=\)
+  pre=${pr} post=${po} run lfs
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\{ po=\}
+  pre=${pr} post=${po} run lfs
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\[ po=\]
+  pre=${pr} post=${po} run lfs
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\< po=\>
+  pre=${pr} post=${po} run lfs
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+}
+
+@test "quotes each of search result" {
+  control_test
+
+  local tmp= c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+
+  ## Single quotes
+  q= run lfs
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "'%s'\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  for ((i=0;i<c;++i)); do
+    q= run lfs $i
+    [ $status -eq 0 ]
+    [ ${#lines[*]} -eq 1 ]
+    tmp=$( printf "'%s'\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "$output" = "$tmp" ]
+  done
+
+  ## Double quotes
+  qq= run lfs
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "\"%s\"\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  for ((i=0;i<c;++i)); do
+    qq= run lfs $i
+    [ $status -eq 0 ]
+    [ ${#lines[*]} -eq 1 ]
+    tmp=$( printf "\"%s\"\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "$output" = "$tmp" ]
+  done
+}
+

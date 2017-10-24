@@ -470,3 +470,93 @@ create_test_file_structure
   [ "${lines[0]}" = "app-options.properties" ]
 }
 
+@test "adds prefix and postfix to each of search result" {
+  control_test
+
+  local pr= po=
+
+  pr=\` po=\`
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\( po=\)
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\{ po=\}
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\[ po=\]
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\< po=\>
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\\* po=\\*
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\+ po=\+
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\~ po=\~
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\| po=\|
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+
+  pr=\# po=\#
+  pre=${pr} post=${po} run lf .properties
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+  [ "${lines[0]}" = "${pr}app-options.properties${po}" ]
+}
+
+@test "quotes each of search result" {
+  control_test
+
+  local tmp=
+
+  q= run lf "${PWD}" folder 0 .txt
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 3 ]
+  sort_array lines
+  tmp=$( printf "'%s'\n" "$PWD/files/folder 0/empty.txt" )
+  [ "${lines[0]}" = "$tmp" ]
+  tmp=$( printf "'%s'\n" "$PWD/files/folder 0/foo.txt" )
+  [ "${lines[2]}" = "$tmp" ]
+
+  qq= run lf "${PWD}" folder 0 .txt
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 3 ]
+  sort_array lines
+  tmp=$( printf "\"%s\"\n" "$PWD/files/folder 0/empty.txt" )
+  [ "${lines[0]}" = "$tmp" ]
+  tmp=$( printf "\"%s\"\n" "$PWD/files/folder 0/foo.txt" )
+  [ "${lines[2]}" = "$tmp" ]
+}
+

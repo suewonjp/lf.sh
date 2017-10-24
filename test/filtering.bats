@@ -85,3 +85,104 @@ create_fake_file_list
   [ $status -eq 0 ]
   [ "${lines[0]}" = "database/civilizer.h2.db" ]
 }
+
+@test "adds prefix and postfix to each of search result" {
+  control_test
+
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]} pr= po= tmp=
+
+  pr=\` po=\`
+  pre=${pr} post=${po} run lff
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\` po=\`
+  pre=${pr} post=${po} run lff
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\( po=\)
+  pre=${pr} post=${po} run lff
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\{ po=\}
+  pre=${pr} post=${po} run lff
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\[ po=\]
+  pre=${pr} post=${po} run lff
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  pr=\< po=\>
+  pre=${pr} post=${po} run lff
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+}
+
+@test "quotes each of search result" {
+  control_test
+
+  local tmp= c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+
+  ## Single quotes
+  q= run lff
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "'%s'\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  q= run lff empty
+  [ $status -eq 0 ]
+  echo "${lines[*]}"
+  [ ${#lines[*]} -eq 3 ]
+  tmp=$( printf "'%s'\n" "files/empty.txt" )
+  [ "${lines[0]}" = "$tmp" ]
+  tmp=$( printf "'%s'\n" "files/folder 0/folder 2/empty.txt" )
+  [ "${lines[2]}" = "$tmp" ]
+
+  ## Double quotes
+  qq= run lff
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    tmp=$( printf "\"%s\"\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  qq= run lff empty
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 3 ]
+  tmp=$( printf "\"%s\"\n" "files/empty.txt" )
+  [ "${lines[0]}" = "$tmp" ]
+  tmp=$( printf "\"%s\"\n" "files/folder 0/empty.txt" )
+  [ "${lines[1]}" = "$tmp" ]
+}
