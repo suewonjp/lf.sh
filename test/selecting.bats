@@ -22,19 +22,14 @@ create_fake_file_list
 
   run lfs -h
   [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
-
   run lfs --h
   [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
-
   run lfs -help
   [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
-
   run lfs --help
   [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
-
   run lfs -?
   [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
-
   run lfs --?
   [ $status -eq 0 ] && [ "$output" = "$( _help_lfs )" ]
 }
@@ -44,8 +39,9 @@ create_fake_file_list
 
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
   run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
+  assert_basics $c
+  #[ $status -eq 0 ]
+  #[ ${#lines[*]} -eq $c ]
 }
 
 @test "selecting works for valid positive index range" {
@@ -55,8 +51,7 @@ create_fake_file_list
 
   for ((i=0;i<c;++i)); do
     run lfs $i
-    [ $status -eq 0 ]
-    [ ${#lines[*]} -eq 1 ]
+    assert_basics 1
     [ "$output" = "${_LIST_FILE_OUTPUT_CACHE[i]}" ]
   done
 }
@@ -68,8 +63,7 @@ create_fake_file_list
 
   for ((i=-c;i<0;++i)); do
     run lfs $i
-    [ $status -eq 0 ]
-    [ ${#lines[*]} -eq 1 ]
+    assert_basics 1
     local realIndex=$(( c + i ))
     [ "$output" = "${_LIST_FILE_OUTPUT_CACHE[realIndex]}" ]
   done
@@ -80,21 +74,10 @@ create_fake_file_list
 
   local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
 
-  run lfs $c
-  [ $status -eq 1 ]
-  [ ${#lines[*]} -eq 0 ]
-
-  run lfs $(( c + $RANDOM ))
-  [ $status -eq 1 ]
-  [ ${#lines[*]} -eq 0 ]
-
-  run lfs -0
-  [ $status -eq 1 ]
-  [ ${#lines[*]} -eq 0 ]
-
-  run lfs $(( -c -1 - $RANDOM ))
-  [ $status -eq 1 ]
-  [ ${#lines[*]} -eq 0 ]
+  run lfs $c; expect_failure
+  run lfs $(( c + $RANDOM )); expect_failure
+  run lfs -0; expect_failure
+  run lfs $(( -c -1 - $RANDOM )); expect_failure
 }
 
 @test "copies selected items to the system clipboard" {
@@ -121,101 +104,53 @@ create_fake_file_list
 @test "adds prefix and postfix to each of search result" {
   control_test
 
-  local c=${#_LIST_FILE_OUTPUT_CACHE[*]} pr= po= tmp=
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
 
-  pr=\` po=\`
-  pre=${pr} post=${po} run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
-  for ((i=0;i<c;++i)); do
-    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    echo ${lines[i]} "---  " $tmp
-    [ "${lines[i]}" = "$tmp" ]
-  done
+  test() {
+    pre=${pr} post=${po} run lfs
+    assert_basics $c
+    for ((i=0;i<c;++i)); do
+      local tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+      [ "${lines[i]}" = "$tmp" ]
+    done
+  }
 
-  pr=\` po=\`
-  pre=${pr} post=${po} run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
-  for ((i=0;i<c;++i)); do
-    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ "${lines[i]}" = "$tmp" ]
-  done
-
-  pr=\( po=\)
-  pre=${pr} post=${po} run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
-  for ((i=0;i<c;++i)); do
-    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ "${lines[i]}" = "$tmp" ]
-  done
-
-  pr=\{ po=\}
-  pre=${pr} post=${po} run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
-  for ((i=0;i<c;++i)); do
-    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ "${lines[i]}" = "$tmp" ]
-  done
-
-  pr=\[ po=\]
-  pre=${pr} post=${po} run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
-  for ((i=0;i<c;++i)); do
-    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ "${lines[i]}" = "$tmp" ]
-  done
-
-  pr=\< po=\>
-  pre=${pr} post=${po} run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
-  for ((i=0;i<c;++i)); do
-    tmp=$( printf "${pr}%s${po}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ "${lines[i]}" = "$tmp" ]
-  done
+  pr=\` po=\` test
+  pr=\` po=\` test
+  pr=\( po=\) test
+  pr=\{ po=\} test
+  pr=\[ po=\] test
+  pr=\< po=\> test
 }
 
 @test "quotes each of search result" {
   control_test
 
-  local tmp= c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
 
-  ## Single quotes
-  q= run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
-  for ((i=0;i<c;++i)); do
-    tmp=$( printf "'%s'\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ "${lines[i]}" = "$tmp" ]
-  done
+  check() {
+    assert_basics $c
+    for ((i=0;i<c;++i)); do
+      local tmp=$( printf "${quote}%s${quote}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+      [ "${lines[i]}" = "$tmp" ]
+    done
+  }
 
-  for ((i=0;i<c;++i)); do
-    q= run lfs $i
-    [ $status -eq 0 ]
-    [ ${#lines[*]} -eq 1 ]
-    tmp=$( printf "'%s'\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+  q= run lfs; quote=\' check
+  qq= run lfs; quote=\" check
+
+  check() {
+    assert_basics 1
+    local tmp=$( printf "${quote}%s${quote}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
     [ "$output" = "$tmp" ]
-  done
+  }
 
-  ## Double quotes
-  qq= run lfs
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
   for ((i=0;i<c;++i)); do
-    tmp=$( printf "\"%s\"\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ "${lines[i]}" = "$tmp" ]
+    q= run lfs $i; quote=\' check
   done
 
   for ((i=0;i<c;++i)); do
-    qq= run lfs $i
-    [ $status -eq 0 ]
-    [ ${#lines[*]} -eq 1 ]
-    tmp=$( printf "\"%s\"\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
-    [ "$output" = "$tmp" ]
+    qq= run lfs $i; quote=\" check
   done
 }
 
@@ -228,22 +163,19 @@ create_fake_file_list
     lfs | while read f; do echo $f; done
   }
   run test
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
+  assert_basics $c
 
   test() {
     nul= lfs | while read f; do echo $f; done
   }
   run test
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq 0 ]
+  assert_basics 0
 
   test() {
     nul= lfs | while read -d $'\0' f; do echo $f; done
   }
   run test
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq $c ]
+  assert_basics $c
   for ((i=0;i<c;++i)); do
     [ "${lines[i]}" = "${_LIST_FILE_OUTPUT_CACHE[i]}" ]
   done
@@ -252,7 +184,6 @@ create_fake_file_list
     nul= lfs 0 | while read -d $'\0' f; do echo $f; done
   }
   run test
-  [ $status -eq 0 ]
-  [ ${#lines[*]} -eq 1 ]
+  assert_basics 1
 }
 

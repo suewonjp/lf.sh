@@ -54,11 +54,6 @@ sort_array() {
   fi
 }
 
-print_lines() {
-  local IFS=$'\n'
-  printf "%s\n" ${lines[@]}
-}
-
 lf() {
   $( echo ${BASH_ALIASES[lf]} $@ )
 }
@@ -110,5 +105,15 @@ _LIST_FILE_TEST_SKIP_ALL=n
 control_test() {
   [[ "${_LIST_FILE_TEST_SKIP_ALL}" = "y" || "${1}" = "skip" ]] && skip
   :
+}
+
+assert_basics() {
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $1 ]
+}
+
+expect_failure() {
+  [ $status -eq 1 ]
+  [ ${#lines[*]} -eq 0 ]
 }
 
