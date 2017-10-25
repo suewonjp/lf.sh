@@ -203,7 +203,7 @@ _lf() {
   fi
 
   local ignore=${ignore} prepend=${prepend+on} append=${append+on}
-  local pre=${pre} post=${post} q=${q+on} qq=${qq+on}
+  local pre=${pre} post=${post} q=${q+on} qq=${qq+on} sep=${nul+\\0}${nul-\\n}
   local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n': cache=
   if [ "${includedots}" = "true" ]; then
     cache=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
@@ -231,7 +231,7 @@ _lf() {
     pre=\' post=\'
   fi
 
-  printf "${pre}%s${post}\n" ${_LIST_FILE_OUTPUT_CACHE[@]}
+  printf "${pre}%s${post}${sep}" ${_LIST_FILE_OUTPUT_CACHE[@]}
 }
 
 _help_lfs() {
@@ -262,7 +262,7 @@ _lfs() {
       ;;
   esac
 
-  local pre=${pre} post=${post} q=${q+on} qq=${qq+on}
+  local pre=${pre} post=${post} q=${q+on} qq=${qq+on} sep=${nul+\\0}${nul-\\n}
   if [ "${qq}" = 'on' ]; then
     pre=\" post=\"
   elif [ "${q}" = 'on' ]; then
@@ -271,7 +271,7 @@ _lfs() {
 
   if [ $# -eq 0 ]; then
     local IFS=$'\n'
-    printf "${pre}%s${post}\n" ${_LIST_FILE_OUTPUT_CACHE[@]}
+    printf "${pre}%s${post}${sep}" ${_LIST_FILE_OUTPUT_CACHE[@]}
     return
   fi
 
@@ -292,7 +292,7 @@ _lfs() {
       ;;
   esac
 
-  local tmp=$( printf "${pre}%s${post}\n" "${_LIST_FILE_OUTPUT_CACHE[index]}" )
+  local tmp=$( printf "${pre}%s${post}" "${_LIST_FILE_OUTPUT_CACHE[index]}" )
 
   if [ "${index}" -eq "${c}" ]; then
     return 1
@@ -300,7 +300,7 @@ _lfs() {
     echo "$tmp"
     echo -n "$tmp" | _pbcopy
   else
-    echo "$tmp"
+    printf "%s${sep}" "$tmp"
   fi
 }
 
@@ -335,18 +335,20 @@ _lff() {
   fi
   local IFS=$'\n' patt=${1} output=
 
+  local sep=${nul+\\0}${nul-\\n}
+  unset nul
   output=( $( _lfs | grep --color=never "${patt}" ) )
 
   if [ "${2}" = "+" ]; then
     if [ ${#output[*]} -eq 1 ]; then
-      echo ${output[0]}
-      echo -n ${output[0]} | _pbcopy
+      echo "${output[0]}"
+      echo -n "${output[0]}" | _pbcopy
     else
-      printf "%s\n" ${output[@]}
-      printf "%s\n" ${output[@]} | _pbcopy
+      printf "%s\n" "${output[@]}"
+      printf "%s\n" "${output[@]}" | _pbcopy
     fi
   else
-    printf "%s\n" ${output[@]}
+    printf "%s${sep}" "${output[@]}"
   fi
 }
 

@@ -560,3 +560,31 @@ create_test_file_structure
   [ "${lines[2]}" = "$tmp" ]
 }
 
+@test "seprates each item with nul byte" {
+  control_test
+
+  test() {
+    lf files folder 0 .txt | while read f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 3 ]
+
+  test() {
+    nul= lf files folder 0 .txt | while read f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 0 ]
+
+  test() {
+    nul= lf files folder 0 .txt | while read -d $'\0' f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 3 ]
+  sort_array lines
+  [ "${lines[0]}" = "files/folder 0/empty.txt" ]
+  [ "${lines[2]}" = "files/folder 0/foo.txt" ]
+}
+

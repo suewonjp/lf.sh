@@ -186,3 +186,47 @@ create_fake_file_list
   tmp=$( printf "\"%s\"\n" "files/folder 0/empty.txt" )
   [ "${lines[1]}" = "$tmp" ]
 }
+
+@test "seprates each item with nul byte" {
+  control_test
+
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+
+  test() {
+    lff | while read f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+
+  test() {
+    nul= lff | while read f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 0 ]
+
+  test() {
+    nul= lff | while read -d $'\0' f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    [ "${lines[i]}" = "${_LIST_FILE_OUTPUT_CACHE[i]}" ]
+  done
+
+  test() {
+    nul= lff empty | while read -d $'\0' f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  echo ${#lines[*]}
+  echo "~~~~~"
+  echo "${lines[*]}"
+  [ ${#lines[*]} -eq 3 ]
+  [ "${lines[0]}" = "files/empty.txt" ]
+  [ "${lines[1]}" = "files/folder 0/empty.txt" ]
+  [ "${lines[2]}" = "files/folder 0/folder 2/empty.txt" ]
+}
+

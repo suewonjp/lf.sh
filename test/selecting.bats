@@ -219,3 +219,40 @@ create_fake_file_list
   done
 }
 
+@test "seprates each item with nul byte" {
+  control_test
+
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+
+  test() {
+    lfs | while read f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+
+  test() {
+    nul= lfs | while read f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 0 ]
+
+  test() {
+    nul= lfs | while read -d $'\0' f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq $c ]
+  for ((i=0;i<c;++i)); do
+    [ "${lines[i]}" = "${_LIST_FILE_OUTPUT_CACHE[i]}" ]
+  done
+
+  test() {
+    nul= lfs 0 | while read -d $'\0' f; do echo $f; done
+  }
+  run test
+  [ $status -eq 0 ]
+  [ ${#lines[*]} -eq 1 ]
+}
+
