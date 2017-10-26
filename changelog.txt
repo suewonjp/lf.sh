@@ -1,6 +1,11 @@
 Copyright (c) 2014-2017 Suewon Bahng, suewonjp@gmail.com
 
-Last Updated (2017-10-10)
+Last Updated (2017-10-31)
+
+## Version 0.8.0 (2017-10-31)
+- Users can add prefix or postfix to each item of search result
+- Users can quote each of search result
+- Users can use nul byte as the separator instead of new line character
 
 ## Version 0.7.0 (2017-10-10)
 - Users can specify folders to ignore by attaching 'ignore' variable

@@ -96,8 +96,34 @@ Quote them if they contain space characters.
 
         $ ignore='node_module:temp memo' lf .js
 
+**[ Since Version 0.8 ]** Use `del` variable to delete files/folders found like so:
+
+        $ del= lf .js
+
+        lf.sh : Are you sure if you want to delete the following path? (y or n)
+            foo.js
+            bar.js
+        y
+        lf.sh : "foo.js" (file) deleted...
+        lf.sh : "bar.js" (file) deleted...
+
+> Type `y` to delete those files/folders or type `n` to abort.
+
+**[ Since Version 0.8 ]** Use `q` or `qq` to quote each item in the search result like so:
+
+            $ q= lf .js
+
+            'foo.js'
+            'bar.js'
+
+            $ qq= lf .js
+
+            "foo.js"
+            "bar.js"
+
 Also, there are other variables like `ignore` for quickly controlling behaviors of `lf`. See [Quick Behavioral Control Variables](https://github.com/suewonjp/lf.sh/wiki/lf#heavy_check_mark-quick-behavioral-control-variables)
-### :coffee: General Formula
+
+### :coffee: GENERAL FORMULA
 `lf` command has two usage patterns;
 
 1. lf [ target file pattern ]
@@ -151,6 +177,8 @@ Read [this](https://github.com/suewonjp/lf.sh/wiki/Quirks-Troubleshootings) for 
 [ g command   : Quickly search text from files returned by lf or lfi ](https://github.com/suewonjp/lf.sh/wiki/g)
 
 * * *
+
+[Behavior Control Variables](https://github.com/suewonjp/lf.sh/wiki/lf#heavy_check_mark-quick-behavioral-control-variables)
 
 [ Tips ](https://github.com/suewonjp/lf.sh/wiki/Tips)
 
