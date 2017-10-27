@@ -1,3 +1,10 @@
+*~
+.trashcan
+.DS_Store
+.swp
+.orig
+Session.vim
 test/fixtures
 test/.tmp
+extra/
 
