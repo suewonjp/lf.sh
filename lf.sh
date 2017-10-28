@@ -13,6 +13,14 @@
 # limitations under the License.
 
 unset _LIST_FILE_OUTPUT_CACHE
+_LIST_FILE_BCV_NAME_IGNORE=${_LIST_FILE_BCV_NAME_IGNORE:-ignore}
+_LIST_FILE_BCV_NAME_PREPEND=${_LIST_FILE_BCV_NAME_PREPEND:-prepend}
+_LIST_FILE_BCV_NAME_APPEND=${_LIST_FILE_BCV_NAME_APPEND:-append}
+_LIST_FILE_BCV_NAME_PRE=${_LIST_FILE_BCV_NAME_PRE:-pre}
+_LIST_FILE_BCV_NAME_POST=${_LIST_FILE_BCV_NAME_POST:-post}
+_LIST_FILE_BCV_NAME_Q=${_LIST_FILE_BCV_NAME_Q:-q}
+_LIST_FILE_BCV_NAME_QQ=${_LIST_FILE_BCV_NAME_QQ:-qq}
+_LIST_FILE_BCV_NAME_NUL=${_LIST_FILE_BCV_NAME_NUL:-nul}
 
 ## Prepare clipboard utility functions
 case "$( uname )" in
@@ -202,8 +210,8 @@ _lf() {
     fi
   fi
 
-  local ignore=${ignore} prepend=${prepend+on} append=${append+on}
-  local pre=${pre} post=${post} q=${q+on} qq=${qq+on} sep=${nul+\\0}${nul-\\n}
+  local ignore=${!_LIST_FILE_BCV_NAME_IGNORE} prepend=${!_LIST_FILE_BCV_NAME_PREPEND+on} append=${!_LIST_FILE_BCV_NAME_APPEND+on}
+  local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on} sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n}
   local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n': cache=
   if [ "${includedots}" = "true" ]; then
     cache=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
@@ -262,7 +270,7 @@ _lfs() {
       ;;
   esac
 
-  local pre=${pre} post=${post} q=${q+on} qq=${qq+on} sep=${nul+\\0}${nul-\\n}
+  local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on} sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n}
   if [ "${qq}" = 'on' ]; then
     pre=\" post=\"
   elif [ "${q}" = 'on' ]; then
@@ -335,8 +343,8 @@ _lff() {
   fi
   local IFS=$'\n' patt=${1} output=
 
-  local sep=${nul+\\0}${nul-\\n}
-  unset nul
+  local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n}
+  unset ${_LIST_FILE_BCV_NAME_NUL}
   output=( $( _lfs | grep --color=never "${patt}" ) )
 
   if [ "${2}" = "+" ]; then

@@ -165,3 +165,39 @@ create_fake_file_list
   [ "${lines[2]}" = "files/folder 0/folder 2/empty.txt" ]
 }
 
+@test "overrides behavior control variables" {
+  control_test
+
+  _LIST_FILE_BCV_NAME_PRE=__pre
+  _LIST_FILE_BCV_NAME_POST=__post
+  _LIST_FILE_BCV_NAME_Q=__q
+  _LIST_FILE_BCV_NAME_QQ=__qq
+  _LIST_FILE_BCV_NAME_NUL=__nul
+
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+
+  __pre=\` __post=\` run lff
+  assert_basics $c
+  for ((i=0;i<c;++i)); do
+    local tmp=$( printf "\`%s\`\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  check() {
+    assert_basics $c
+    for ((i=0;i<c;++i)); do
+      local tmp=$( printf "${quote}%s${quote}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+      [ "${lines[i]}" = "$tmp" ]
+    done
+  }
+
+  __q= run lff; quote=\' check
+  __qq= run lff; quote=\" check
+
+  test() {
+    __nul= lff empty | while read -d $'\0' f; do echo $f; done
+  }
+  run test
+  assert_basics 3
+}
+

@@ -387,7 +387,7 @@ create_test_file_structure
   quote=\" check
 }
 
-@test "seprates each item with nul byte" {
+@test "separates each item with nul byte" {
   control_test
 
   test() {
@@ -410,5 +410,48 @@ create_test_file_structure
   sort_array lines
   [ "${lines[0]}" = "files/folder 0/empty.txt" ]
   [ "${lines[2]}" = "files/folder 0/foo.txt" ]
+}
+
+@test "overrides behavior control variables" {
+  control_test
+
+  _LIST_FILE_BCV_NAME_IGNORE=__ignore
+  _LIST_FILE_BCV_NAME_PREPEND=__prepend
+  _LIST_FILE_BCV_NAME_APPEND=__append
+  _LIST_FILE_BCV_NAME_PRE=__pre
+  _LIST_FILE_BCV_NAME_POST=__post
+  _LIST_FILE_BCV_NAME_Q=__q
+  _LIST_FILE_BCV_NAME_QQ=__qq
+  _LIST_FILE_BCV_NAME_NUL=__nul
+
+  __ignore='folder 0:' run lf .+ --
+  assert_basics 8
+
+  create_fake_file_list
+
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+  run lfs
+  assert_basics $(( $c + 0 ))
+
+  __prepend= run lf .properties
+  assert_basics $(( $c + 1 )) && [ "${lines[0]}" = "app-options.properties" ]
+
+  __append= run lf database --
+  assert_basics $(( $c + 2 )) && [ "${lines[$(( $c + 1 ))]}" = "database/civilizer.TRACE.DB" ]
+
+  __pre=\[ __post=\] run lf .properties
+  assert_basics 1
+  [ "${lines[0]}" = "[app-options.properties]" ]
+
+  __q= run lf .properties
+  assert_basics 1 && [ "${lines[0]}" = "'app-options.properties'" ]
+  __qq= run lf .properties
+  assert_basics 1 && [ "${lines[0]}" = '"app-options.properties"' ]
+
+  test() {
+    __nul= lf files folder 0 .txt | while read -d $'\0' f; do echo $f; done
+  }
+  run test
+  assert_basics 3
 }
 

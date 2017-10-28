@@ -116,7 +116,6 @@ create_fake_file_list
   }
 
   pr=\` po=\` test
-  pr=\` po=\` test
   pr=\( po=\) test
   pr=\{ po=\} test
   pr=\[ po=\] test
@@ -182,6 +181,42 @@ create_fake_file_list
 
   test() {
     nul= lfs 0 | while read -d $'\0' f; do echo $f; done
+  }
+  run test
+  assert_basics 1
+}
+
+@test "overrides behavior control variables" {
+  control_test
+
+  _LIST_FILE_BCV_NAME_PRE=__pre
+  _LIST_FILE_BCV_NAME_POST=__post
+  _LIST_FILE_BCV_NAME_Q=__q
+  _LIST_FILE_BCV_NAME_QQ=__qq
+  _LIST_FILE_BCV_NAME_NUL=__nul
+
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]}
+
+  __pre=\` __post=\` run lfs
+  assert_basics $c
+  for ((i=0;i<c;++i)); do
+    local tmp=$( printf "\`%s\`\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+    [ "${lines[i]}" = "$tmp" ]
+  done
+
+  check() {
+    assert_basics $c
+    for ((i=0;i<c;++i)); do
+      local tmp=$( printf "${quote}%s${quote}\n" "${_LIST_FILE_OUTPUT_CACHE[i]}" )
+      [ "${lines[i]}" = "$tmp" ]
+    done
+  }
+
+  __q= run lfs; quote=\' check
+  __qq= run lfs; quote=\" check
+
+  test() {
+    __nul= lfs 0 | while read -d $'\0' f; do echo $f; done
   }
   run test
   assert_basics 1
