@@ -21,6 +21,7 @@ _LIST_FILE_BCV_NAME_POST=${_LIST_FILE_BCV_NAME_POST:-post}
 _LIST_FILE_BCV_NAME_Q=${_LIST_FILE_BCV_NAME_Q:-q}
 _LIST_FILE_BCV_NAME_QQ=${_LIST_FILE_BCV_NAME_QQ:-qq}
 _LIST_FILE_BCV_NAME_NUL=${_LIST_FILE_BCV_NAME_NUL:-nul}
+_LIST_FILE_BCV_NAME_DEL=${_LIST_FILE_BCV_NAME_DEL:-del}
 
 ## Prepare clipboard utility functions
 case "$( uname )" in
@@ -211,7 +212,8 @@ _lf() {
   fi
 
   local ignore=${!_LIST_FILE_BCV_NAME_IGNORE} prepend=${!_LIST_FILE_BCV_NAME_PREPEND+on} append=${!_LIST_FILE_BCV_NAME_APPEND+on}
-  local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on} sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n}
+  local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on}
+  local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n} del=${!_LIST_FILE_BCV_NAME_DEL+on}
   local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n': cache=
   if [ "${includedots}" = "true" ]; then
     cache=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
@@ -239,7 +241,11 @@ _lf() {
     pre=\' post=\'
   fi
 
-  printf "${pre}%s${post}${sep}" ${_LIST_FILE_OUTPUT_CACHE[@]}
+  if [ "${del}" = "on" ]; then
+    _rmrf "${_LIST_FILE_OUTPUT_CACHE[@]}"
+  else
+    printf "${pre}%s${post}${sep}" "${_LIST_FILE_OUTPUT_CACHE[@]}"
+  fi
 }
 
 _help_lfs() {
@@ -270,7 +276,8 @@ _lfs() {
       ;;
   esac
 
-  local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on} sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n}
+  local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on}
+  local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n} del=${!_LIST_FILE_BCV_NAME_DEL+on}
   if [ "${qq}" = 'on' ]; then
     pre=\" post=\"
   elif [ "${q}" = 'on' ]; then
@@ -279,7 +286,11 @@ _lfs() {
 
   if [ $# -eq 0 ]; then
     local IFS=$'\n'
-    printf "${pre}%s${post}${sep}" ${_LIST_FILE_OUTPUT_CACHE[@]}
+    if [ "${del}" = "on" ]; then
+      _rmrf "${_LIST_FILE_OUTPUT_CACHE[@]}"
+    else
+      printf "${pre}%s${post}${sep}" "${_LIST_FILE_OUTPUT_CACHE[@]}"
+    fi
     return
   fi
 
@@ -308,7 +319,11 @@ _lfs() {
     echo "$tmp"
     echo -n "$tmp" | _pbcopy
   else
-    printf "%s${sep}" "$tmp"
+    if [ "${del}" = "on" ]; then
+      _rmrf "$tmp"
+    else
+      printf "%s${sep}" "$tmp"
+    fi
   fi
 }
 
@@ -343,8 +358,9 @@ _lff() {
   fi
   local IFS=$'\n' patt=${1} output=
 
-  local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n}
+  local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n} _lff_del=${!_LIST_FILE_BCV_NAME_DEL+on}
   unset ${_LIST_FILE_BCV_NAME_NUL}
+  unset ${_LIST_FILE_BCV_NAME_DEL}
   output=( $( _lfs | grep --color=never "${patt}" ) )
 
   if [ "${2}" = "+" ]; then
@@ -356,7 +372,11 @@ _lff() {
       printf "%s\n" "${output[@]}" | _pbcopy
     fi
   else
-    printf "%s${sep}" "${output[@]}"
+    if [ "${_lff_del}" = "on" ]; then
+      _rmrf "${output[@]}"
+    else
+      printf "%s${sep}" "${output[@]}"
+    fi
   fi
 }
 
@@ -400,10 +420,67 @@ _g() {
   [ "${c}" -ne 0 ] && "${grepTool}" ${grepOptions[*]} -- "${patt}" "${_LIST_FILE_OUTPUT_CACHE[@]}"
 }
 
+_rmrf() {
+  local callee='lf.sh' ok=no p=
+
+  if [ $# = 0 ]; then
+    _help_rmrf
+    return
+  fi
+
+  echo "$callee : Are you sure if you want to delete the following path? (y or n)"
+  printf "$(tput setaf 6)    %s\n" "$@"
+  tput sgr 0
+
+  read ok
+
+  if [ ${ok:0} = 'y' ] ; then
+    for p in "$@" ; do
+      if [ "${p:0}" = '/' ] ; then
+        echo "$callee : Too Dangerous!!! (trying to delete a root level file/folder)"
+        echo "$callee : aborted..."
+        return 1
+      elif [ "$p" = '..' -o "$p" = '.' ] ; then
+        echo "$callee : Too Dangerous!!! (trying to delete \"$p\")"
+        echo "$callee : aborted..."
+        return 1
+      elif [ -f "$p" ] ; then
+        rm -rf "$p"
+        echo "$callee : \"$p\" (file) deleted..."
+      elif [ -d "$p" ] ; then
+        rm -rf "$p"
+        echo "$callee : \"$p\" (folder) deleted..."
+      else
+        echo "$callee : \"$p\" not found..."
+      fi
+    done
+  else
+    echo "$callee : aborted..."
+    return 1
+  fi
+}
+
+_help_rmrf() {
+  cat <<'EOF'
+rmrf - Safely delete files/folders using 'rm -rf' command
+
+'rm -rf' command is convenient, but it is potentially dangerous.
+This command basically works the same as 'rm -rf' except that:
+
+1) It will deny deleting root level files/folders
+2) It will deny deleting ../ or ./
+3) It will always ask your final confirmation before deleting files/folders
+  --- Type y to proceed or type n to abort
+
+For more information, see https://github.com/suewonjp/lf.sh/wiki/rmrf
+EOF
+}
+
 alias ${_LIST_FILE_CMD:-lf}='_lf path'
 alias ${_LIST_FILE_IGNORECASE_CMD:-lfi}='_lf ipath'
 alias ${_LIST_FILE_SELECT_CMD:-lfs}='_lfs'
 alias ${_LIST_FILE_FILTER_CMD:-lff}='_lff'
 alias ${_LIST_FILE_GREP_CMD:-g}='_g path'
 alias ${_LIST_FILE_GREP_IGNORECASE_CMD:-gi}='_g ipath'
+alias ${_LIST_FILE_RMRF:-rmrf}='_rmrf'
 

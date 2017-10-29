@@ -323,7 +323,7 @@ create_test_file_structure
 }
 
 @test "appends or prepends new search result to the existing result" {
-  control_test
+  #control_test
 
   create_fake_file_list
 
@@ -335,9 +335,9 @@ create_test_file_structure
   assert_basics $(( $c + 1 ))
   [ "${lines[0]}" = "app-options.properties" ]
 
-  append= run lf database --
-  assert_basics $(( $c + 2 ))
-  [ "${lines[$(( $c + 1 ))]}" = "database/civilizer.TRACE.DB" ]
+  append= run lf database .DB
+  assert_basics $(( $c + 1 ))
+  [ "${lines[$(( $c ))]}" = "database/civilizer.TRACE.DB" ]
 
   # When 'prepend' and 'append' are used simultaneously, respect only 'prepend'
   prepend= append= run lf .properties
@@ -436,8 +436,8 @@ create_test_file_structure
   __prepend= run lf .properties
   assert_basics $(( $c + 1 )) && [ "${lines[0]}" = "app-options.properties" ]
 
-  __append= run lf database --
-  assert_basics $(( $c + 2 )) && [ "${lines[$(( $c + 1 ))]}" = "database/civilizer.TRACE.DB" ]
+  __append= run lf database .DB
+  assert_basics $(( $c + 1 )) && [ "${lines[$(( $c ))]}" = "database/civilizer.TRACE.DB" ]
 
   __pre=\[ __post=\] run lf .properties
   assert_basics 1
