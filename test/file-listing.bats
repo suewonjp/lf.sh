@@ -323,7 +323,7 @@ create_test_file_structure
 }
 
 @test "appends or prepends new search result to the existing result" {
-  #control_test
+  control_test
 
   create_fake_file_list
 
@@ -410,6 +410,20 @@ create_test_file_structure
   sort_array lines
   [ "${lines[0]}" = "files/folder 0/empty.txt" ]
   [ "${lines[2]}" = "files/folder 0/foo.txt" ]
+}
+
+@test "follows symbolic links" {
+  control_test
+
+  check() {
+    assert_basics 13
+    sort_array lines
+    #show_lines
+    [ "${lines[10]}" = "${pwd}.hidden/database/civilizer.TRACE.DB" ]
+    [ "${lines[11]}" = "${pwd}.hidden/database/civilizer.h2.db" ]
+  }
+
+  sym= run lf .+ --; check
 }
 
 @test "overrides behavior control variables" {

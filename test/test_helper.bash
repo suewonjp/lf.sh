@@ -3,7 +3,7 @@ create_test_file_structure() {
   rm -rf "${FIXTURE_ROOT}"
   mkdir -p "${FIXTURE_ROOT}/${TEST_FS}"
 
-  cd "${FIXTURE_ROOT}/${TEST_FS}"
+  pushd "${FIXTURE_ROOT}/${TEST_FS}" > /dev/null 2>&1
 
   mkdir -p "files/folder 0/folder 2" "files/folder 1" "database" ".hidden/log"
   touch "app-options.properties" \
@@ -28,7 +28,11 @@ civilizer.message2=HELLO WORLD!" > "app-options.properties"
   echo "civilizer" > "database/civilizer.TRACE.DB"
   echo "Something wrong..." > ".hidden/log/error.log"
 
-  cd "${OLDPWD}"
+  pushd ".hidden" > /dev/null 2>&1
+  ln -s "../database" database
+  popd > /dev/null 2>&1
+
+  popd > /dev/null 2>&1
 }
 
 create_fake_file_list() {
@@ -98,6 +102,11 @@ teardown() {
 
 show_output() {
   echo "actual output => $output"
+}
+
+show_lines() {
+  echo "actual lines =>"
+  printf "%s\n" "${lines[@]}"
 }
 
 _LIST_FILE_TEST_SKIP_ALL=n

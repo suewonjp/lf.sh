@@ -22,6 +22,7 @@ _LIST_FILE_BCV_NAME_Q=${_LIST_FILE_BCV_NAME_Q:-q}
 _LIST_FILE_BCV_NAME_QQ=${_LIST_FILE_BCV_NAME_QQ:-qq}
 _LIST_FILE_BCV_NAME_NUL=${_LIST_FILE_BCV_NAME_NUL:-nul}
 _LIST_FILE_BCV_NAME_DEL=${_LIST_FILE_BCV_NAME_DEL:-del}
+_LIST_FILE_BCV_NAME_SYM=${_LIST_FILE_BCV_NAME_SYM:-sym}
 
 ## Prepare clipboard utility functions
 case "$( uname )" in
@@ -215,10 +216,11 @@ _lf() {
   local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on}
   local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n} del=${!_LIST_FILE_BCV_NAME_DEL+on}
   local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n': cache=
+  local sym=${!_LIST_FILE_BCV_NAME_SYM+-L}
   if [ "${includedots}" = "true" ]; then
-    cache=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
+    cache=( $( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
   else
-    cache=( $( set -f; find "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
+    cache=( $( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
   fi
 
   ## Prepend new search result to the existing result
