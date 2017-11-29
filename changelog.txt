@@ -1,6 +1,10 @@
 Copyright (c) 2014-2017 Suewon Bahng, suewonjp@gmail.com
 
-Last Updated (2017-10-31)
+Last Updated (2017-11-29)
+
+## Version 0.9.0 (2017-11-29)
+- Can search files through symlinks
+	- For detail, see https://github.com/suewonjp/lf.sh/wiki/lf#heavy_check_mark-quick-behavioral-control-variables
 
 ## Version 0.8.0 (2017-10-31)
 - Users can add prefix or postfix to each item of search result

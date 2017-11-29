@@ -121,6 +121,30 @@ Quote them if they contain space characters.
             "foo.js"
             "bar.js"
 
+**[ Since Version 0.9 ]** Use `sym` to search files through **symlinks**  
+( `lf` doesn't follow symlinks by default. )
+
+            $ tree -a test
+
+            test
+            ├── baz.lst
+            ├── database -> ../database
+            └── log
+                └── error.log
+
+            ### 'database' is not a folder. It's a symlink
+
+            $ lf test --      ### Don't follow symlinks by default.
+
+            test/fixtures/test-fs/.hidden/baz.lst
+            test/fixtures/test-fs/.hidden/log/error.log
+
+            $ sym= lf test -- ### Follow symlinks.
+
+            test/fixtures/test-fs/.hidden/baz.lst
+            test/fixtures/test-fs/.hidden/database/civilizer.h2.db
+            test/fixtures/test-fs/.hidden/log/error.log
+
 Also, there are other variables like `ignore` for quickly controlling behaviors of `lf`. See [Quick Behavioral Control Variables](https://github.com/suewonjp/lf.sh/wiki/lf#heavy_check_mark-quick-behavioral-control-variables)
 
 ### :coffee: GENERAL FORMULA
@@ -221,5 +245,5 @@ Suewon Bahng
 Other contributors are welcome!
 
 * * *
-Updated by Suewon Bahng ( Oct 2017 )
+Updated by Suewon Bahng ( Nov 2017 )
 
