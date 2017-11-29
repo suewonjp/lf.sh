@@ -53,7 +53,7 @@ sort_array() {
   if [ -n "$1" ]; then
     local IFS=$'\n'
     eval "local arr=( \${$1[*]} )"
-    arr=( $( sort -d <<<"${arr[*]}" ) )
+    arr=( $( sort -fd <<<"${arr[*]}" ) )
     eval "$1=( \${arr[*]} )"
   fi
 }

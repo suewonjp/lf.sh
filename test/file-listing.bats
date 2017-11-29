@@ -419,8 +419,8 @@ create_test_file_structure
     assert_basics 13
     sort_array lines
     #show_lines
-    [ "${lines[10]}" = "${pwd}.hidden/database/civilizer.TRACE.DB" ]
-    [ "${lines[11]}" = "${pwd}.hidden/database/civilizer.h2.db" ]
+    [ "${lines[10]}" = "${pwd}.hidden/database/civilizer.h2.db" ]
+    [ "${lines[11]}" = "${pwd}.hidden/database/civilizer.TRACE.DB" ]
   }
 
   sym= run lf .+ --; check
