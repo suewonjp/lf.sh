@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# shellcheck disable=SC2139,SC2148,SC1007,SC2120,SC2155,SC1117,SC2119
+
 unset _LIST_FILE_OUTPUT_CACHE
 _LIST_FILE_BCV_NAME_IGNORE=${_LIST_FILE_BCV_NAME_IGNORE:-ignore}
 _LIST_FILE_BCV_NAME_PREPEND=${_LIST_FILE_BCV_NAME_PREPEND:-prepend}
@@ -94,7 +96,7 @@ _compile_dirs2ignore() {
   local IFS=':' dirs2ignore= output=
   read -ra dirs2ignore <<< "$1"
   for d in "${dirs2ignore[@]}"; do
-    [ "$d" ] && output+="!:-path:*`_trim ${d%/}`/*:"
+    [ "$d" ] && output+="!:-path:*$( _trim "${d%/}" )/*:"
   done
   echo "${output}"
 }
@@ -196,7 +198,7 @@ _lf() {
       abspathcwd=true
     else
       ## Removing trailing '/'s if any
-      basedir=$( echo ${1} | tr -s / )
+      basedir=$( echo "${1}" | tr -s / )
       basedir="${basedir%/}"
     fi
 
@@ -207,7 +209,7 @@ _lf() {
     else
       ## Case of the base directory and multiple file patterns
       shift
-      pattern="$( _join '*' $* )"
+      pattern="$( _join '*' "$@" )"
       [ "${pattern: -2}" = '--' ] && pattern="${pattern%--}"
     fi
   fi
@@ -215,19 +217,22 @@ _lf() {
   local ignore=${!_LIST_FILE_BCV_NAME_IGNORE} prepend=${!_LIST_FILE_BCV_NAME_PREPEND+on} append=${!_LIST_FILE_BCV_NAME_APPEND+on}
   local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on}
   local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n} del=${!_LIST_FILE_BCV_NAME_DEL+on}
-  local dirs2ignore=`_compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}"` IFS=$'\n': cache=
+  local dirs2ignore=$( _compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}" ) IFS=$'\n': cache=
   local sym=${!_LIST_FILE_BCV_NAME_SYM+-L}
+  # shellcheck disable=SC2086
   if [ "${includedots}" = "true" ]; then
-    cache=( $( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
+    #cache=( $( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
+    mapfile -t cache < <( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} )
   else
-    cache=( $( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
+    #cache=( $( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
+    mapfile -t cache < <( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} )
   fi
 
   ## Prepend new search result to the existing result
-  cache+=( ${prepend:+`printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}`} )
+  cache+=( ${prepend:+$( printf "%s\n" "${_LIST_FILE_OUTPUT_CACHE[@]}" )} )
 
   ## Append new search result to the existing result but only when 'prepend' is not used
-  [ "${prepend}" != 'on' ] && cache=( ${append:+`printf "%s\n" ${_LIST_FILE_OUTPUT_CACHE[@]}`} ${cache[@]} )
+  [ "${prepend}" != 'on' ] && cache=( ${append:+$( printf "%s\n" "${_LIST_FILE_OUTPUT_CACHE[@]}" )} "${cache[@]}" )
 
   local pwd=
   [ "${abspathcwd}" = "true" ] && pwd="$PWD/"
@@ -361,9 +366,10 @@ _lff() {
   local IFS=$'\n' patt=${1} output=
 
   local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n} _lff_del=${!_LIST_FILE_BCV_NAME_DEL+on}
-  unset ${_LIST_FILE_BCV_NAME_NUL}
-  unset ${_LIST_FILE_BCV_NAME_DEL}
-  output=( $( _lfs | grep --color=never "${patt}" ) )
+  unset "${_LIST_FILE_BCV_NAME_NUL}"
+  unset "${_LIST_FILE_BCV_NAME_DEL}"
+  #output=( $( _lfs | grep --color=never "${patt}" ) )
+  mapfile -t output < <( _lfs | grep --color=never "${patt}" )
 
   if [ "${2}" = "+" ]; then
     if [ ${#output[*]} -eq 1 ]; then
@@ -408,7 +414,7 @@ _g() {
     grep|egrep|fgrep) read -ra grepOptions <<< "${_LIST_FILE_GREP_OPTIONS--n}" ;;
     ack|ag) read -ra grepOptions <<< "${_LIST_FILE_GREP_OPTIONS--H}" ;;
     *) echo "${0##*/} [WARNNIG] ${_LIST_FILE_GREP_TOOL} is unknown tool! Using grep instead..." 2>&1
-       grepTool=grep
+       grepTool='grep'
        read -ra grepOptions <<< "${_LIST_FILE_GREP_OPTIONS--n}" ;;
   esac
 
@@ -417,9 +423,10 @@ _g() {
     return
   fi
   shift 2
-  _lf ${behavior} $@ > /dev/null 2>&1
-  local c=${#_LIST_FILE_OUTPUT_CACHE[*]} GREP_OPTIONS= LFS=$'\n'
-  [ "${c}" -ne 0 ] && "${grepTool}" ${grepOptions[*]} -- "${patt}" "${_LIST_FILE_OUTPUT_CACHE[@]}"
+  _lf "${behavior}" "$@" > /dev/null 2>&1
+  # shellcheck disable=SC2034
+  local c=${#_LIST_FILE_OUTPUT_CACHE[*]} GREP_OPTIONS=
+  [ "${c}" -ne 0 ] && "${grepTool}" "${grepOptions[@]}" -- "${patt}" "${_LIST_FILE_OUTPUT_CACHE[@]}"
 }
 
 _rmrf() {
@@ -434,15 +441,15 @@ _rmrf() {
   printf "$(tput setaf 6)    %s\n" "$@"
   tput sgr 0
 
-  read ok
+  read -r ok
 
-  if [ ${ok:0} = 'y' ] ; then
+  if [ "${ok:0}" = 'y' ] ; then
     for p in "$@" ; do
       if [ "${p:0}" = '/' ] ; then
         echo "$callee : Too Dangerous!!! (trying to delete a root level file/folder)"
         echo "$callee : aborted..."
         return 1
-      elif [ "$p" = '..' -o "$p" = '.' ] ; then
+      elif [ "$p" = '..' ] || [ "$p" = '.' ] ; then
         echo "$callee : Too Dangerous!!! (trying to delete \"$p\")"
         echo "$callee : aborted..."
         return 1
@@ -478,11 +485,11 @@ For more information, see https://github.com/suewonjp/lf.sh/wiki/rmrf
 EOF
 }
 
-alias ${_LIST_FILE_CMD:-lf}='_lf path'
-alias ${_LIST_FILE_IGNORECASE_CMD:-lfi}='_lf ipath'
-alias ${_LIST_FILE_SELECT_CMD:-lfs}='_lfs'
-alias ${_LIST_FILE_FILTER_CMD:-lff}='_lff'
-alias ${_LIST_FILE_GREP_CMD:-g}='_g path'
-alias ${_LIST_FILE_GREP_IGNORECASE_CMD:-gi}='_g ipath'
-alias ${_LIST_FILE_RMRF:-rmrf}='_rmrf'
+alias "${_LIST_FILE_CMD:-lf}"='_lf path'
+alias "${_LIST_FILE_IGNORECASE_CMD:-lfi}"='_lf ipath'
+alias "${_LIST_FILE_SELECT_CMD:-lfs}"='_lfs'
+alias "${_LIST_FILE_FILTER_CMD:-lff}"='_lff'
+alias "${_LIST_FILE_GREP_CMD:-g}"='_g path'
+alias "${_LIST_FILE_GREP_IGNORECASE_CMD:-gi}"='_g ipath'
+alias "${_LIST_FILE_RMRF:-rmrf}"='_rmrf'
 
