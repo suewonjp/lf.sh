@@ -63,13 +63,15 @@ To print **absolute path** for the output result, use `+` notation:
 You can specify an absolute path for the base directory to begin search with like so:  
 **( [ NOTE ] The major purpose of `lf` is to search files through the current working directory; Searching files through your entire file system (or your entire home directory) with `lf` is inefficient and not recommended; [locate](http://www.linfo.org/locate.html "") is recommended for that purpose. )**
 
-        $ lf /usr/local man .git1
+        $ lf /usr/local man git show .1
 
-        /usr/local/git/share/man/man1/git-remote-testgit.1
-        /usr/local/git/share/man/man1/git.1
+        /usr/local/git/share/man/man1/git-show-branch.1
+        /usr/local/git/share/man/man1/git-show-index.1
+        /usr/local/git/share/man/man1/git-show-ref.1
+        /usr/local/git/share/man/man1/git-show.1
 
 By default, `lf` **excludes** dot folders (such as .git, .svn, etc) or dot files (.bashrc, .gitignore, etc) from its search.  
-To search dot files or files inside dot folders, use `.+` notation:  
+To search those files or folders, use `.+` notation:  
 **( [ TIPS ] To print absolute path for that result, use +.+ notation )**
 
         $ lf .+ error .log
@@ -145,7 +147,7 @@ Quote them if they contain space characters.
             test/fixtures/test-fs/.hidden/database/civilizer.h2.db
             test/fixtures/test-fs/.hidden/log/error.log
 
-Also, there are other variables like `ignore` for quickly controlling behaviors of `lf`. See [Quick Behavioral Control Variables](https://github.com/suewonjp/lf.sh/wiki/lf#heavy_check_mark-quick-behavioral-control-variables)
+Also, there are other variables besides `ignore` for quickly controlling behaviors of `lf`. See [Quick Behavioral Control Variables](https://github.com/suewonjp/lf.sh/wiki/lf#heavy_check_mark-quick-behavioral-control-variables)
 
 ### :coffee: GENERAL FORMULA
 `lf` command has two usage patterns;
@@ -155,31 +157,25 @@ Also, there are other variables like `ignore` for quickly controlling behaviors 
 1. lf [ base dir ] [ (optional) intermediate patterns ... ] [ target file pattern ]
     - [base dir] should be a complete path (relative or absolute), not a partial matching pattern
         - `.`(current path) or `..`(parent path) is also accepted
-    - If [base dir] doesn't exist on the file system, the search will fail
 
 Notice that [ target file pattern ] is required in any case.
 
 To print help message, type `lf --help`
 
 ### :coffee: [ CAVEATS ]
-Don't use a separate asterisk (`*`) to denote arbitrary filenames like the following:
+Don't use asterisks (`*`) to denote wildcard notations like the following:
 
         $ lf . file folder 0 *
-This won't work and may produce unexpected output;  
-Most shells including Bash will perform [pathname expansion](http://wiki.bash-hackers.org/syntax/expansion/globs "") when they see wildcards such as `*` and if `*` is used alone (which is most greedy), it will be expanded every path name under the current working directory.  
-This behavior is based on POXIS specification and there is little `lf.sh` can do about it;  
-Though, concatenating `*` with other patterns will be OK like so:
+This won't work and produce unexpected output;  
+Most shells including Bash will perform [pathname expansion](http://wiki.bash-hackers.org/syntax/expansion/globs "") whenever they see wildcards such as `*`. For the command above, the shell won't pass (to lf.sh) the string as it is, but will pass string containing expanded file/folder names in the current working directory. This behavior is based on the POXIS specification and there is little `lf.sh` can do about it;  
 
-        $ lf . file folder 0 *oo*.txt
-    
-        files/folder 0/foo.txt
-However, even in this case, a space is preferable to `*`:
+**In a nutshell, you don't have to use `*` at all. Space characters work like wildcard.**
 
         $ lf . file folder 0 oo .txt
 
         files/folder 0/foo.txt
 If you don't have any clue about target filename pattern, use `--` instead of `*`:  
-( `lf` uses `--` as a notation for every unspecific filename)
+( `lf` uses `--` as a notation for unspecific filename)
 
         $ lf . file folder 0 --
         
