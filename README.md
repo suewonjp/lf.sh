@@ -128,11 +128,14 @@ Quote them if they contain space characters.
 
             $ tree -a test
 
-            test
-            ├── baz.lst
-            ├── database -> ../database
-            └── log
-                └── error.log
+            test/
+            ├── fixtures
+            │   └── test-fs
+            │       ├── .hidden
+            │       │   ├── baz.lst
+            │       │   ├── database -> ../database
+            │       │   └── log
+            │       │       └── error.log
 
             ### 'database' is not a folder. It's a symlink
 
@@ -241,5 +244,5 @@ Suewon Bahng
 Other contributors are welcome!
 
 * * *
-Updated by Suewon Bahng ( Nov 2017 )
+Updated by Suewon Bahng ( May 2020 )
 
