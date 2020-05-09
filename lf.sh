@@ -36,7 +36,7 @@ case "$( uname )" in
       pbpaste
     }
     ;;
-  CYGWIN*)
+  CYGWIN*|MINGW*)
     _pbcopy() {
       cat - >/dev/clipboard
     }
