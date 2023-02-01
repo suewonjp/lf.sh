@@ -493,3 +493,4 @@ alias "${_LIST_FILE_GREP_CMD:-g}"='_g path'
 alias "${_LIST_FILE_GREP_IGNORECASE_CMD:-gi}"='_g ipath'
 alias "${_LIST_FILE_RMRF:-rmrf}"='_rmrf'
 
+complete -d lf lfi
