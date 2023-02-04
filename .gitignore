@@ -7,4 +7,5 @@ Session.vim
 test/fixtures
 test/.tmp
 extra/
-
+memo/
+tmp/

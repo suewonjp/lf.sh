@@ -75,12 +75,6 @@ _join() {
   local IFS="$1"
   shift
   echo "${IFS}$*"
-  #local sep="$1" result=
-  #shift
-  #for i in "$@"; do
-    #result+="${sep}${i}"
-  #done
-  #echo ${result}
 }
 
 ## Trim leading & trailing whitespaces from the given string
@@ -93,9 +87,9 @@ _trim() {
 
 ## Convert names of directories to ignore into a friendlier form to 'find' command 
 _compile_dirs2ignore() {
-  local IFS=':' dirs2ignore= output=
-  read -ra dirs2ignore <<< "$1"
-  for d in "${dirs2ignore[@]}"; do
+  local IFS=':' _dirs2ignore= output= d=
+  read -ra _dirs2ignore <<< "$1"
+  for d in "${_dirs2ignore[@]}"; do
     [ "$d" ] && output+="!:-path:*$( _trim "${d%/}" )/*:"
   done
   echo "${output}"
@@ -221,10 +215,8 @@ _lf() {
   local sym=${!_LIST_FILE_BCV_NAME_SYM+-L}
   # shellcheck disable=SC2086
   if [ "${includedots}" = "true" ]; then
-    #cache=( $( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} ) )
     mapfile -t cache < <( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} )
   else
-    #cache=( $( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} ) )
     mapfile -t cache < <( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ! -path "${basedir}/.*" ${dirs2ignore} )
   fi
 
@@ -301,7 +293,8 @@ _lfs() {
     return
   fi
 
-  local c=${#_LIST_FILE_OUTPUT_CACHE[@]} index=${c}
+  local c=${#_LIST_FILE_OUTPUT_CACHE[@]}
+  local index=${c}
   case "${1}" in
     [0-9]*) ## We need to confirm the variable is an integer number
       if [ 0 -le "${1}" ] && [ "${1}" -lt "${c}" ]; then
