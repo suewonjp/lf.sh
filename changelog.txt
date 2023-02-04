@@ -4,7 +4,8 @@ Last Updated (2017-11-29)
 
 ## Version 0.10.0 (2023-xx-xx)
 - lf and lfi complete directory names only
-- TODO: Following symlinks is now default behavior
+- Following symlinks is now default behavior
+	- Use `sym=no lf ...` in order not to follow symlinks
 
 ## Version 0.9.0 (2017-11-29)
 - Can search files through symlinks

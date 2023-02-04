@@ -133,10 +133,10 @@ create_test_file_structure
   control_test
 
   check() {
-    assert_basics 11
+    assert_basics 13
     sort_array lines
     [ "${lines[9]}" = "${pwd}.hidden/baz.lst" ]
-    [ "${lines[10]}" = "${pwd}.hidden/log/error.log" ]
+    [ "${lines[10]}" = "${pwd}.hidden/database/civilizer.h2.db" ]
   }
 
   run lf .+; check
@@ -163,7 +163,7 @@ create_test_file_structure
 
   _LIST_FILE_DIRS_IGNORE=":"
   run lf .+ --
-  assert_basics 11
+  assert_basics 13
 }
 
 @test "lists files with a file extention" {
@@ -259,11 +259,12 @@ create_test_file_structure
   control_test
 
   check() {
-    assert_basics 3
+    assert_basics 5
     sort_array lines
+    printf '%s\n' "${lines[@]}"
     [ ${lines[0]} = "${pwd}.config" ]
     [ ${lines[1]} = "${pwd}.hidden/baz.lst" ]
-    [ ${lines[2]} = "${pwd}.hidden/log/error.log" ]
+    [ ${lines[2]} = "${pwd}.hidden/database/civilizer.h2.db" ]
   }
 
   run lf .+ /. --; check
@@ -274,10 +275,10 @@ create_test_file_structure
   control_test
 
   check() {
-    assert_basics 2
+    assert_basics 4
     sort_array lines
     [ ${lines[0]} = "${pwd}.hidden/baz.lst" ]
-    [ ${lines[1]} = "${pwd}.hidden/log/error.log" ]
+    [ ${lines[1]} = "${pwd}.hidden/database/civilizer.h2.db" ]
   }
 
   run lf .+ .hidd --; check
@@ -319,7 +320,7 @@ create_test_file_structure
   assert_basics 5
 
   ignore='folder 0:' run lf .+ --
-  assert_basics 8
+  assert_basics 10
 }
 
 @test "appends or prepends new search result to the existing result" {
@@ -413,6 +414,7 @@ create_test_file_structure
 }
 
 @test "follows symbolic links" {
+  # Following symlinks is default behavior since v1.0.0
   control_test
 
   check() {
@@ -424,6 +426,25 @@ create_test_file_structure
   }
 
   sym= run lf .+ --; check
+  run lf .+ --; check
+}
+
+@test "do not follow symbolic links" {
+  control_test
+
+  check() {
+    assert_basics 11
+    sort_array lines
+    [ "${lines[9]}" = "${pwd}.hidden/baz.lst" ]
+    [ "${lines[10]}" = "${pwd}.hidden/log/error.log" ]
+  }
+
+  sym=no run lf .+ --; check
+  sym=skip run lf .+ --; check
+  sym=ignore run lf .+ --; check
+  sym=NO run lf .+ --; check
+  sym=SKIP run lf .+ --; check
+  sym=IGNORE run lf .+ --; check
 }
 
 @test "overrides behavior control variables" {
@@ -439,7 +460,7 @@ create_test_file_structure
   _LIST_FILE_BCV_NAME_NUL=__nul
 
   __ignore='folder 0:' run lf .+ --
-  assert_basics 8
+  assert_basics 10
 
   create_fake_file_list
 

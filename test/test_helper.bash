@@ -85,7 +85,7 @@ gi() {
 fixtures() {
   FIXTURE_NAME="fixtures"
   FIXTURE_ROOT="${BATS_TEST_DIRNAME}/${FIXTURE_NAME}"
-  RELATIVE_FIXTURE_ROOT="$( bats_trim_filename "${FIXTURE_ROOT}" )"
+  RELATIVE_FIXTURE_ROOT="$( bats_trim_filename "${FIXTURE_ROOT}" 'filename' )"
   cd "${BATS_TEST_DIRNAME}"
   shopt -s expand_aliases
   source "../lf.sh"
@@ -125,4 +125,3 @@ expect_failure() {
   [ $status -eq 1 ]
   [ ${#lines[*]} -eq 0 ]
 }
-

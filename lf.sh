@@ -142,6 +142,7 @@ EOF
 
 ## List Files
 _lf() {
+  shopt -s extglob
   local basedir=. abspathcwd= pattern='*' behavior="${1}" includedots=
   shift
 
@@ -212,7 +213,8 @@ _lf() {
   local pre=${!_LIST_FILE_BCV_NAME_PRE} post=${!_LIST_FILE_BCV_NAME_POST} q=${!_LIST_FILE_BCV_NAME_Q+on} qq=${!_LIST_FILE_BCV_NAME_QQ+on}
   local sep=${!_LIST_FILE_BCV_NAME_NUL+\\0}${!_LIST_FILE_BCV_NAME_NUL-\\n} del=${!_LIST_FILE_BCV_NAME_DEL+on}
   local dirs2ignore=$( _compile_dirs2ignore "${ignore}:${_LIST_FILE_DIRS_IGNORE:-.git:.svn:.hg}" ) IFS=$'\n': cache=
-  local sym=${!_LIST_FILE_BCV_NAME_SYM+-L}
+  local sym=${!_LIST_FILE_BCV_NAME_SYM:--L}
+  [[ ${sym,,} = @(no|skip|ignore) ]] && sym=
   # shellcheck disable=SC2086
   if [ "${includedots}" = "true" ]; then
     mapfile -t cache < <( set -f; find ${sym} "${basedir}" -type f -${behavior} "${pattern}" ${dirs2ignore} )
