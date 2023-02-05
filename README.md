@@ -124,7 +124,8 @@ Quote them if they contain space characters.
             "bar.js"
 
 **[ Since Version 0.9 ]** Use `sym` to search files through **symlinks**  
-( `lf` doesn't follow symlinks by default. )
+
+**[ Since Version 1.0.0 ]** Following symlinks is default behavior
 
             $ tree -a test
 
@@ -139,15 +140,15 @@ Quote them if they contain space characters.
 
             ### 'database' is not a folder. It's a symlink
 
-            $ lf test --      ### Don't follow symlinks by default.
-
-            test/fixtures/test-fs/.hidden/baz.lst
-            test/fixtures/test-fs/.hidden/log/error.log
-
-            $ sym= lf test -- ### Follow symlinks.
+            $ lf test --        ### Follow symlinks by default.
 
             test/fixtures/test-fs/.hidden/baz.lst
             test/fixtures/test-fs/.hidden/database/civilizer.h2.db
+            test/fixtures/test-fs/.hidden/log/error.log
+
+            $ sym=no lf test -- ### Use `sym=no` or `sym=skip` or `sym=ignore` to ignore symlinks
+
+            test/fixtures/test-fs/.hidden/baz.lst
             test/fixtures/test-fs/.hidden/log/error.log
 
 Also, there are other variables besides `ignore` for quickly controlling behaviors of `lf`. See [Quick Behavioral Control Variables](https://github.com/suewonjp/lf.sh/wiki/lf#heavy_check_mark-quick-behavioral-control-variables)
@@ -220,11 +221,11 @@ Man pages are not ready yet...
 
 ### :coffee: CREDITS
 - `lf.sh` has been inspired by [z script](https://github.com/rupa/z "")
-- `lf.sh` uses [Bats: Bash Automated Testing System](https://github.com/sstephenson/bats "") for its unit testing
+- `lf.sh` uses [Bats: Bash Automated Testing System](https://github.com/bats-core/bats-core) for its unit testing
 
 ### :copyright: COPYRIGHT/LICENSE/DISCLAIMER
 
-    Copyright (c) 2017 Suewon Bahng, suewonjp@gmail.com
+    Copyright (c) 2014-2023 Suewon Bahng, suewonjp@gmail.com
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

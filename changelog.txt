@@ -1,8 +1,8 @@
-Copyright (c) 2014-2017 Suewon Bahng, suewonjp@gmail.com
+Copyright (c) 2014-2023 Suewon Bahng, suewonjp@gmail.com
 
-Last Updated (2017-11-29)
+Last Updated (2023-02-05)
 
-## Version 0.10.0 (2023-xx-xx)
+## Version 1.0.0 (2023-02-05)
 - lf and lfi complete directory names only
 - Following symlinks is now default behavior
 	- Use `sym=no lf ...` in order not to follow symlinks
