@@ -18,4 +18,3 @@ au BufRead,BufNewFile *.bats set filetype=sh
 let g:is_bash = 1
 
 silent! args $PWD lf.sh test/*.bats test/*.bash
-
